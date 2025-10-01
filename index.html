@@ -3,89 +3,98 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>vClock-clone • Online Clock, Alarm, Timer, Stopwatch</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>vClock</title>
+  <meta name="description" content="Online clock, alarm, timer and stopwatch — vClock clone." />
+  <link rel="stylesheet" href="style.css">
+  <!-- Digital font -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <main class="container">
-    <header class="header">
-      <h1 class="brand">vClock • Clone</h1>
-      <nav class="tabs">
-        <button data-tab="clock" class="tab active">Clock</button>
-        <button data-tab="alarm" class="tab">Alarm</button>
-        <button data-tab="timer" class="tab">Timer</button>
-        <button data-tab="stopwatch" class="tab">Stopwatch</button>
+  <main class="wrap">
+    <header class="topbar">
+      <h1 class="brand">vClock</h1>
+      <nav class="tabs" role="tablist" aria-label="Clock tools">
+        <button class="tab active" data-tab="clock" role="tab" aria-selected="true">Clock</button>
+        <button class="tab" data-tab="alarm" role="tab">Alarm</button>
+        <button class="tab" data-tab="timer" role="tab">Timer</button>
+        <button class="tab" data-tab="stopwatch" role="tab">Stopwatch</button>
       </nav>
     </header>
 
-    <section id="clock" class="panel visible">
-      <div class="clock-display">
+    <!-- CLOCK -->
+    <section id="clock" class="panel visible" aria-labelledby="clock-tab">
+      <div class="display">
         <div id="time" class="time">00:00:00</div>
         <div id="date" class="date">—</div>
       </div>
-      <div class="clock-controls">
-        <label><input id="toggle24" type="checkbox"> Use 24-hour</label>
-        <label><input id="showDate" type="checkbox" checked> Show date</label>
-        <label><input id="nightMode" type="checkbox"> Night mode</label>
+
+      <div class="controls">
+        <label class="switch"><input id="toggle24" type="checkbox"><span>Use 24-hour</span></label>
+        <label class="switch"><input id="showDate" type="checkbox" checked><span>Show date</span></label>
+        <label class="switch"><input id="nightMode" type="checkbox"><span>Night mode</span></label>
       </div>
     </section>
 
-    <section id="alarm" class="panel">
+    <!-- ALARM -->
+    <section id="alarm" class="panel" aria-labelledby="alarm-tab">
       <h2>Alarm</h2>
-      <div class="alarm-current">
-        <div id="alarmList"></div>
-      </div>
-      <form id="addAlarmForm" class="alarm-form">
+      <div id="alarmList" class="alarm-list"></div>
+
+      <form id="addAlarmForm" class="alarm-form" aria-label="Add alarm">
         <label>
-          Time:
-          <input id="alarmTime" type="time" required />
+          Time
+          <input id="alarmTime" type="time" required>
         </label>
         <label>
-          Label:
-          <input id="alarmLabel" type="text" placeholder="Wake up" />
+          Label
+          <input id="alarmLabel" type="text" placeholder="Wake up">
         </label>
         <label>
-          Repeat:
+          Repeat
           <select id="alarmRepeat">
             <option value="once">Once</option>
             <option value="daily">Daily</option>
             <option value="weekdays">Weekdays</option>
           </select>
         </label>
-        <button type="submit">Set Alarm</button>
+        <button type="submit" class="btn">Set Alarm</button>
       </form>
     </section>
 
-    <section id="timer" class="panel">
+    <!-- TIMER -->
+    <section id="timer" class="panel" aria-labelledby="timer-tab">
       <h2>Timer</h2>
       <div class="timer-display">
-        <div id="timerTime">00:00</div>
+        <div id="timerTime" class="time-small">00:00</div>
       </div>
+
       <div class="timer-controls">
-        <input id="timerMinutes" type="number" min="0" value="1" /> minutes
-        <button id="startTimer">Start</button>
-        <button id="pauseTimer">Pause</button>
-        <button id="resetTimer">Reset</button>
+        <input id="timerMinutes" type="number" min="0" step="1" value="1" aria-label="minutes">
+        <span>minutes</span>
+        <button id="startTimer" class="btn">Start</button>
+        <button id="pauseTimer" class="btn">Pause</button>
+        <button id="resetTimer" class="btn">Reset</button>
       </div>
     </section>
 
-    <section id="stopwatch" class="panel">
+    <!-- STOPWATCH -->
+    <section id="stopwatch" class="panel" aria-labelledby="stopwatch-tab">
       <h2>Stopwatch</h2>
       <div class="stopwatch-display">
-        <div id="swTime">00:00.00</div>
+        <div id="swTime" class="time-small">00:00.00</div>
       </div>
+
       <div class="stopwatch-controls">
-        <button id="swStart">Start</button>
-        <button id="swLap">Lap</button>
-        <button id="swStop">Stop</button>
-        <button id="swReset">Reset</button>
+        <button id="swStart" class="btn">Start</button>
+        <button id="swLap" class="btn">Lap</button>
+        <button id="swStop" class="btn">Stop</button>
+        <button id="swReset" class="btn">Reset</button>
       </div>
-      <ol id="laps" class="laps"></ol>
+
+      <ol id="laps" class="laps" aria-live="polite"></ol>
     </section>
 
-    <footer class="footer">
-      <small>Built with ❤️ — local-only alarm uses Web Audio and requires the page open.</small>
-    </footer>
+    <footer class="footer">Built with ❤️ — local-only alarm uses Web Audio and requires the page open.</footer>
   </main>
 
   <script src="script.js"></script>
