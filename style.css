@@ -92,3 +92,24 @@ body{
   .display{padding:16px}
   .time{font-size:48px}
 }
+/* Sidebar Donate Box */
+.donate-box {
+  margin: 20px 10px;
+  padding: 15px;
+  background: #2b2b2b; /* dark block */
+  border-radius: 6px;
+  text-align: center;
+}
+
+.donate-box h3 {
+  color: #fff;
+  font-size: 14px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+#paypal-button-container {
+  display: flex;
+  justify-content: center;
+}
+
