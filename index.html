@@ -47,7 +47,9 @@
 
   <!-- Main Content -->
   <main id="content">
-    <div id="clock"></div>
+    <div id="clock-container">
+      <div id="clock" class="flip-clock"></div>
+    </div>
   </main>
 
   <!-- Floating Controls -->
@@ -56,6 +58,32 @@
     <button id="zoom-out">➖</button>
     <button id="zoom-in">➕</button>
     <button id="fullscreen">⛶</button>
+  </div>
+
+  <!-- Settings Panel -->
+  <div id="settings-panel" class="hidden">
+    <h3>Clock Settings</h3>
+    <label>
+      Font Style:
+      <select id="font-select">
+        <option value="monospace">Digital</option>
+        <option value="sans-serif">Sans Serif</option>
+        <option value="serif">Serif</option>
+        <option value="cursive">Cursive</option>
+      </select>
+    </label>
+    <br><br>
+    <label>
+      Font Color:
+      <input type="color" id="font-color" value="#00FF00">
+    </label>
+    <br><br>
+    <label>
+      Background Color:
+      <input type="color" id="bg-color" value="#000000">
+    </label>
+    <br><br>
+    <button id="reset-settings">Reset Defaults</button>
   </div>
 
   <!-- PayPal SDK -->
@@ -87,6 +115,7 @@
     }).render('#paypal-button-container');
   </script>
 
+  <!-- App Script -->
   <script src="script.js"></script>
 </body>
 </html>
