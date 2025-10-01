@@ -1,0 +1,48 @@
+:root{
+  --bg:#0b0c10; --card:#0f1116; --muted:#9aa0a6; --accent:#6E44FF;
+  --glass: rgba(255,255,255,0.04);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
+  background: linear-gradient(180deg,#06070a 0%, #0b0c10 60%); color:#eef1f6;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+.container{
+  max-width:980px; margin:32px auto; padding:20px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius:12px; box-shadow: 0 6px 30px rgba(7,8,10,0.6);
+  border:1px solid rgba(255,255,255,0.03)
+}
+.header{display:flex;align-items:center;justify-content:space-between}
+.brand{margin:0;font-weight:600;letter-spacing:0.4px}
+.tabs{display:flex;gap:8px}
+.tab{
+  background:transparent;border:1px solid rgba(255,255,255,0.04); color:var(--muted);
+  padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600
+}
+.tab.active{background:linear-gradient(90deg,var(--accent), #00d4ff); color:#081021; border:none}
+.panel{display:none;padding:18px 0}
+.panel.visible{display:block}
+.clock-display{text-align:center;padding:28px 12px}
+.time{font-size:64px;font-weight:700;letter-spacing:1px}
+.date{color:var(--muted)}
+.clock-controls{display:flex;gap:12px;justify-content:center;margin-top:12px;color:var(--muted)}
+.alarm-form{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.alarm-form input, .alarm-form select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+.alarm-form button{background:linear-gradient(90deg,var(--accent), #00d4ff);border:none;padding:10px 16px;border-radius:8px;color:#081021;cursor:pointer}
+.alarm-current{margin-top:8px}
+.alarm-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;background:var(--glass);margin-bottom:8px}
+.timer-display, .stopwatch-display{text-align:center;padding:12px}
+.timer-time, #timerTime{font-size:48px;font-weight:700}
+.timer-controls, .stopwatch-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;margin-top:12px}
+button{cursor:pointer}
+.footer{text-align:center;padding:12px;color:var(--muted);font-size:13px}
+.laps{margin-top:12px;padding-left:18px;color:var(--muted)}
+/* responsive */
+@media (max-width:640px){
+  .time{font-size:40px}
+  .container{margin:16px}
+  .tabs{flex-wrap:wrap}
+}
