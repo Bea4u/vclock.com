@@ -1,150 +1,92 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>vClock • Clone (Final)</title>
-  <meta name="description" content="vClock clone — clock, alarm, timer, stopwatch, world clock & pomodoro." />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>vClock Clone</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- TOP BAR -->
-  <header class="topbar">
+  <!-- Top Navigation -->
+  <header>
     <div class="top-left">
-      <button class="top-link" id="holidaysBtn">Holidays</button>
-      <div class="tools-dropdown">
-        <button class="top-link" id="toolsBtn" aria-haspopup="true" aria-expanded="false">Tools ▾</button>
-        <div class="tools-menu" id="toolsMenu" role="menu" aria-hidden="true">
-          <button data-tool="world">World Clock</button>
-          <button data-tool="online-timer">Online Timer</button>
-          <button data-tool="pomodoro">Pomodoro</button>
+      <a href="#">Holidays</a>
+      <div class="dropdown">
+        <button class="dropbtn">Tools ▼</button>
+        <div class="dropdown-content">
+          <a href="#">World Clock</a>
+          <a href="#">Pomodoro</a>
         </div>
       </div>
     </div>
-
     <div class="top-right">
-      <button id="themeToggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="currentColor"/></svg>
-      </button>
-      <button id="settingsBtn" class="icon-btn" aria-label="Settings" title="Settings">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7z" fill="currentColor"/></svg>
-      </button>
+      <button id="theme-toggle">🌙</button>
+      <button id="settings">⚙️</button>
     </div>
   </header>
 
-  <!-- APP -->
-  <div class="app">
-    <!-- LEFT SIDEBAR -->
-    <aside class="sidebar" aria-label="Main navigation">
-      <div class="logo">vClock</div>
-      <nav class="side-nav" role="navigation">
-        <button class="nav-item" data-tab="clock" aria-pressed="false">
-          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 20a8 8 0 1 0-.001-16.001A8 8 0 0 0 12 20zm1-13h-2v6l5 3 1-1.6-4-2.4z"/></svg>
-          <span>Time</span>
-        </button>
-        <button class="nav-item active" data-tab="alarm" aria-pressed="true">
-          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 4v2H5v2h14V6h-2V4zM12 7a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg>
-          <span>Alarm</span>
-        </button>
-        <button class="nav-item" data-tab="timer" aria-pressed="false">
-          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M15 2h-6v2h6V2zM12 8a6 6 0 1 0 .001 12.001A6 6 0 0 0 12 8zM11 11h2v5h-2z"/></svg>
-          <span>Timer</span>
-        </button>
-        <button class="nav-item" data-tab="stopwatch" aria-pressed="false">
-          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 1h6v2H9zM12 6a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM11 10h2v6h-2z"/></svg>
-          <span>Stopwatch</span>
-        </button>
-      </nav>
-    </aside>
+  <!-- Sidebar -->
+  <aside>
+    <h2 class="logo">vClock</h2>
+    <nav>
+      <ul>
+        <li class="active">Alarm Clock</li>
+        <li>Timer</li>
+        <li>Stopwatch</li>
+        <li>Time</li>
+      </ul>
+    </nav>
+    <hr>
 
-    <!-- MAIN -->
-    <main class="main" id="mainArea">
-      <!-- CLOCK -->
-      <section id="clock" class="panel hidden" aria-labelledby="clockTab">
-        <div class="display">
-          <div id="time" class="time">00:00:00</div>
-          <div id="date" class="date">—</div>
-        </div>
-        <div class="controls">
-          <label class="switch"><input id="toggle24" type="checkbox"><span>Use 24-hour</span></label>
-          <label class="switch"><input id="showDate" type="checkbox" checked><span>Show date</span></label>
-          <label class="switch"><input id="nightMode" type="checkbox"><span>Night mode</span></label>
-        </div>
-      </section>
-
-      <!-- ALARM -->
-      <section id="alarm" class="panel" aria-labelledby="alarmTab">
-        <h2>Alarm</h2>
-        <div id="alarmList" class="alarm-list" aria-live="polite"></div>
-
-        <form id="addAlarmForm" class="alarm-form" aria-label="Add alarm">
-          <label>Time <input id="alarmTime" type="time" required></label>
-          <label>Label <input id="alarmLabel" type="text" placeholder="Wake up"></label>
-          <label>Repeat
-            <select id="alarmRepeat">
-              <option value="once">Once</option>
-              <option value="daily">Daily</option>
-              <option value="weekdays">Weekdays</option>
-            </select>
-          </label>
-          <button class="btn" type="submit">Set Alarm</button>
-        </form>
-      </section>
-
-      <!-- TIMER -->
-      <section id="timer" class="panel hidden" aria-labelledby="timerTab">
-        <h2>Timer</h2>
-        <div class="timer-display"><div id="timerTime" class="time-small">00:00</div></div>
-        <div class="timer-controls">
-          <input id="timerMinutes" type="number" min="0" value="1"> <span>minutes</span>
-          <button id="startTimer" class="btn">Start</button>
-          <button id="pauseTimer" class="btn">Pause</button>
-          <button id="resetTimer" class="btn">Reset</button>
-        </div>
-      </section>
-
-      <!-- STOPWATCH -->
-      <section id="stopwatch" class="panel hidden" aria-labelledby="stopwatchTab">
-        <h2>Stopwatch</h2>
-        <div class="stopwatch-display"><div id="swTime" class="time-small">00:00.00</div></div>
-        <div class="stopwatch-controls">
-          <button id="swStart" class="btn">Start</button>
-          <button id="swLap" class="btn">Lap</button>
-          <button id="swStop" class="btn">Stop</button>
-          <button id="swReset" class="btn">Reset</button>
-        </div>
-        <ol id="laps" class="laps"></ol>
-      </section>
-
-      <!-- TOOL OVERLAY -->
-      <div id="toolsOverlay" class="tools-overlay hidden" role="dialog" aria-modal="true">
-        <div class="tools-card">
-          <button class="closeTools" id="closeTools" aria-label="Close">✕</button>
-          <div id="toolContent"></div>
-        </div>
-      </div>
-    </main>
-
-    <!-- FLOATING ACTIONS -->
-    <div class="float-actions" aria-hidden="false">
-      <button id="shareBtn" class="float-btn" title="Share"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a3 3 0 0 0 0-1.41l7.02-4.11A2.99 2.99 0 1 0 14 4c0 .11.01.22.02.33L7 8.44A3 3 0 1 0 8.91 12.7l7.12 4.58c-.03.17-.03.35-.03.53a3 3 0 1 0 3-3z"/></svg></button>
-      <button id="zoomOut" class="float-btn" title="Zoom out">−</button>
-      <button id="zoomIn" class="float-btn" title="Zoom in">＋</button>
-      <button id="fullScreen" class="float-btn" title="Fullscreen">⤢</button>
+    <!-- PayPal Donate Section -->
+    <div class="donate-box">
+      <h3>Support Us</h3>
+      <div id="paypal-button-container"></div>
     </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main id="content">
+    <div id="clock"></div>
+  </main>
+
+  <!-- Floating Controls -->
+  <div class="floating-controls">
+    <button id="share">🔗</button>
+    <button id="zoom-out">➖</button>
+    <button id="zoom-in">➕</button>
+    <button id="fullscreen">⛶</button>
   </div>
 
-  <footer class="footer">Built with ❤️ — page must be open for alarm sounds.</footer>
+  <!-- PayPal SDK -->
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD"></script>
 
-  <!-- Optional audio files: place alarm.ogg / alarm.mp3 in same folder to use them -->
-  <audio id="alarmAudio" preload="auto">
-    <source src="alarm.ogg" type="audio/ogg" />
-    <source src="alarm.mp3" type="audio/mpeg" />
-    <!-- browsers will fallback to WebAudio if sources absent -->
-  </audio>
+  <!-- PayPal Button Script -->
+  <script>
+    paypal.Buttons({
+      style: {
+        color: 'gold',
+        shape: 'pill',
+        label: 'pay',
+        height: 40
+      },
+      createOrder: function(data, actions) {
+        return actions.order.create({
+          purchase_units: [{
+            amount: {
+              value: '5.00' // Fixed donation amount
+            }
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          alert('Thank you, ' + details.payer.name.given_name + '! Payment completed.');
+        });
+      }
+    }).render('#paypal-button-container');
+  </script>
 
   <script src="script.js"></script>
 </body>
 </html>
-
