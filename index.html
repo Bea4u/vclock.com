@@ -41,15 +41,15 @@
     <!-- PayPal Donate Section -->
     <div class="donate-box">
       <h3>Support Us</h3>
-      <div id="paypal-button-container"></div>
+      <a href="https://www.paypal.me/JoyNance576" target="_blank" class="donate-link">
+        Donate via PayPal
+      </a>
     </div>
   </aside>
 
   <!-- Main Content -->
   <main id="content">
-    <div id="clock-container">
-      <div id="clock" class="flip-clock"></div>
-    </div>
+    <div id="clock"></div>
   </main>
 
   <!-- Floating Controls -->
@@ -60,62 +60,7 @@
     <button id="fullscreen">⛶</button>
   </div>
 
-  <!-- Settings Panel -->
-  <div id="settings-panel" class="hidden">
-    <h3>Clock Settings</h3>
-    <label>
-      Font Style:
-      <select id="font-select">
-        <option value="monospace">Digital</option>
-        <option value="sans-serif">Sans Serif</option>
-        <option value="serif">Serif</option>
-        <option value="cursive">Cursive</option>
-      </select>
-    </label>
-    <br><br>
-    <label>
-      Font Color:
-      <input type="color" id="font-color" value="#00FF00">
-    </label>
-    <br><br>
-    <label>
-      Background Color:
-      <input type="color" id="bg-color" value="#000000">
-    </label>
-    <br><br>
-    <button id="reset-settings">Reset Defaults</button>
-  </div>
-
-  <!-- PayPal SDK -->
-  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD"></script>
-
-  <!-- PayPal Button Script -->
-  <script>
-    paypal.Buttons({
-      style: {
-        color: 'gold',
-        shape: 'pill',
-        label: 'pay',
-        height: 40
-      },
-      createOrder: function(data, actions) {
-        return actions.order.create({
-          purchase_units: [{
-            amount: {
-              value: '5.00' // Fixed donation amount
-            }
-          }]
-        });
-      },
-      onApprove: function(data, actions) {
-        return actions.order.capture().then(function(details) {
-          alert('Thank you, ' + details.payer.name.given_name + '! Payment completed.');
-        });
-      }
-    }).render('#paypal-button-container');
-  </script>
-
-  <!-- App Script -->
+  <!-- Your Script -->
   <script src="script.js"></script>
 </body>
 </html>
