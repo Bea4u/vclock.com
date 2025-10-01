@@ -1,145 +1,94 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>vClock • Clone</title>
-  <meta name="description" content="vClock clone — clock, alarm, timer, stopwatch, world clock & pomodoro." />
-  <link rel="stylesheet" href="style.css">
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-</head>
-<body>
-  <!-- TOP BAR -->
-  <header class="topbar">
-    <div class="top-left">
-      <button class="top-link">Holidays</button>
-      <div class="tools-dropdown">
-        <button class="top-link" id="toolsBtn">Tools ▾</button>
-        <div class="tools-menu" id="toolsMenu" role="menu" aria-hidden="true">
-          <button data-tool="world">World Clock</button>
-          <button data-tool="online-timer">Online Timer</button>
-          <button data-tool="pomodoro">Pomodoro</button>
-        </div>
-      </div>
-    </div>
+:root{
+  --top:#3b3b3b; --bg:#000; --panel:#0b0d10; --muted:#9aa0a6; --accent1:#1bff9d; --accent2:#00d4ff;
+  --text:#dfffe0; --muted-2:rgba(200,200,200,0.3);
+}
 
-    <div class="top-right">
-      <button id="themeToggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
-        <!-- moon/sun icon -->
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="currentColor"/></svg>
-      </button>
-      <button id="settingsBtn" class="icon-btn" aria-label="Settings" title="Settings">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7z" fill="currentColor"/><path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1 1 0 0 0-1.1-.2 7.5 7.5 0 0 1-1.8.9 1 1 0 0 0-.8.9v.2a2 2 0 1 1-4 0v-.2a1 1 0 0 0-.8-.9 7.5 7.5 0 0 1-1.8-.9 1 1 0 0 0-1.1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1 1 0 0 0 .2-1.1 7.5 7.5 0 0 1-.9-1.8 1 1 0 0 0-.9-.8H4a2 2 0 1 1 0-4h.2c.3 0 .6-.3.9-.8.3-.6.6-1.2.9-1.8a1 1 0 0 0-.2-1.1L6 3a2 2 0 1 1 2.8-2.8L9 0a1 1 0 0 0 1.1.2c.6.3 1.2.6 1.8.9.4.2.9.2 1.3 0 .6-.3 1.2-.6 1.8-.9A1 1 0 0 0 15 0h.2A2 2 0 1 1 18 4h-.2a1 1 0 0 0-.9.8c-.3.6-.6 1.2-.9 1.8-.2.4-.2.9 0 1.3.3.6.6 1.2.9 1.8.2.4.6.8.9 1.1z" fill="currentColor"/></svg>
-      </button>
-    </div>
-  </header>
+/* Reset */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
+  background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased;
+  display:flex;flex-direction:column;
+}
 
-  <!-- APP LAYOUT -->
-  <div class="app">
-    <!-- LEFT SIDEBAR -->
-    <aside class="sidebar">
-      <div class="logo">vClock</div>
-      <nav class="side-nav" role="navigation">
-        <button class="nav-item active" data-tab="alarm">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M7 4v2H5v2h14V6h-2V4zM12 7a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg>
-          <span>Alarm Clock</span>
-        </button>
-        <button class="nav-item" data-tab="timer">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M15 2h-6v2h6V2zM12 8a6 6 0 1 0 .001 12.001A6 6 0 0 0 12 8zM11 11h2v5h-2z"/></svg>
-          <span>Timer</span>
-        </button>
-        <button class="nav-item" data-tab="stopwatch">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M9 1h6v2H9zM12 6a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM11 10h2v6h-2z"/></svg>
-          <span>Stopwatch</span>
-        </button>
-        <button class="nav-item" data-tab="clock">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 20a8 8 0 1 0-.001-16.001A8 8 0 0 0 12 20zm1-13h-2v6l5 3 1-1.6-4-2.4z"/></svg>
-          <span>Time</span>
-        </button>
-      </nav>
-    </aside>
+/* Topbar */
+.topbar{
+  height:56px;background:var(--top);display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#fff;
+}
+.top-left{display:flex;gap:12px;align-items:center}
+.top-link{background:transparent;border:none;color:#fff;padding:6px 8px;cursor:pointer;font-weight:600}
+.tools-dropdown{position:relative}
+.tools-menu{position:absolute;top:40px;left:0;background:#fff;color:#071014;border-radius:8px;padding:8px;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+.tools-menu button{display:block;background:transparent;border:none;padding:8px 12px;text-align:left;width:100%;cursor:pointer}
+.tools-menu button:hover{background:#f0f0f0}
 
-    <!-- MAIN -->
-    <main class="main">
-      <!-- CLOCK panel -->
-      <section id="clock" class="panel">
-        <div class="display">
-          <div id="time" class="time">00:00:00</div>
-          <div id="date" class="date">—</div>
-        </div>
-        <div class="controls">
-          <label class="switch"><input id="toggle24" type="checkbox"><span>Use 24-hour</span></label>
-          <label class="switch"><input id="showDate" type="checkbox" checked><span>Show date</span></label>
-          <label class="switch"><input id="nightMode" type="checkbox"><span>Night mode</span></label>
-        </div>
-      </section>
+/* Layout */
+.app{display:flex;flex:1;min-height:calc(100vh - 56px);overflow:hidden}
+.sidebar{width:120px;background:#2f2f2f;color:#fff;padding:16px 8px;display:flex;flex-direction:column;align-items:center}
+.logo{font-weight:700;font-size:28px;margin-bottom:8px}
+.side-nav{width:100%;display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.nav-item{
+  background:transparent;border:none;color:#fff;padding:12px 8px;border-radius:4px;display:flex;align-items:center;gap:8px;flex-direction:column;
+  cursor:pointer;width:100%;text-align:center;font-weight:600;font-size:13px;
+}
+.nav-item .nav-icon{width:28px;height:28px;opacity:0.95}
+.nav-item span{font-size:12px;display:block;margin-top:6px}
+.nav-item.active{background:#eee;color:#071014}
+.nav-item.active .nav-icon{filter:none}
 
-      <!-- ALARM panel -->
-      <section id="alarm" class="panel hidden">
-        <h2>Alarm</h2>
-        <div id="alarmList" class="alarm-list"></div>
-        <form id="addAlarmForm" class="alarm-form">
-          <label>Time <input id="alarmTime" type="time" required></label>
-          <label>Label <input id="alarmLabel" type="text" placeholder="Wake up"></label>
-          <label>Repeat
-            <select id="alarmRepeat">
-              <option value="once">Once</option>
-              <option value="daily">Daily</option>
-              <option value="weekdays">Weekdays</option>
-            </select>
-          </label>
-          <button class="btn" type="submit">Set Alarm</button>
-        </form>
-      </section>
+/* Main */
+.main{flex:1;padding:28px;overflow:auto}
+.panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.03)}
+.hidden{display:none}
 
-      <!-- TIMER panel -->
-      <section id="timer" class="panel hidden">
-        <h2>Timer</h2>
-        <div class="timer-display"><div id="timerTime" class="time-small">00:00</div></div>
-        <div class="timer-controls">
-          <input id="timerMinutes" type="number" min="0" value="1"> <span>minutes</span>
-          <button id="startTimer" class="btn">Start</button>
-          <button id="pauseTimer" class="btn">Pause</button>
-          <button id="resetTimer" class="btn">Reset</button>
-        </div>
-      </section>
+/* Display */
+.display{text-align:center;padding:30px 10px}
+.time{
+  font-family: 'Orbitron', monospace;font-weight:700;font-size:84px;letter-spacing:3px;
+  color:var(--accent1);
+  text-shadow: 0 0 30px rgba(27,255,157,0.18), 0 0 60px rgba(0,212,255,0.06);
+  margin:0;
+}
+.date{color:var(--muted-2);font-size:15px;margin-top:8px}
 
-      <!-- STOPWATCH panel -->
-      <section id="stopwatch" class="panel hidden">
-        <h2>Stopwatch</h2>
-        <div class="stopwatch-display"><div id="swTime" class="time-small">00:00.00</div></div>
-        <div class="stopwatch-controls">
-          <button id="swStart" class="btn">Start</button>
-          <button id="swLap" class="btn">Lap</button>
-          <button id="swStop" class="btn">Stop</button>
-          <button id="swReset" class="btn">Reset</button>
-        </div>
-        <ol id="laps" class="laps" aria-live="polite"></ol>
-      </section>
+/* small time */
+.time-small{font-size:36px;font-weight:700;color:var(--accent1);text-align:center;margin:10px 0}
 
-      <!-- TOOLS: World clock / Online timer / Pomodoro modals (hidden by default) -->
-      <div id="toolsOverlay" class="tools-overlay hidden">
-        <div class="tools-card">
-          <button class="closeTools" id="closeTools">✕</button>
-          <div id="toolContent">
-            <!-- content injected by JS -->
-          </div>
-        </div>
-      </div>
-    </main>
+/* controls */
+.controls{display:flex;gap:12px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.switch{display:flex;align-items:center;gap:8px;color:var(--muted-2);font-weight:700}
+.switch input{width:16px;height:16px}
 
-    <!-- FLOATING ACTIONS -->
-    <div class="float-actions">
-      <button id="shareBtn" class="float-btn" title="Share"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a3 3 0 0 0 0-1.41l7.02-4.11A2.99 2.99 0 1 0 14 4c0 .11.01.22.02.33L7 8.44A3 3 0 1 0 8.91 12.7l7.12 4.58c-.03.17-.03.35-.03.53a3 3 0 1 0 3-3z"/></svg></button>
-      <button id="zoomOut" class="float-btn" title="Zoom out">−</button>
-      <button id="zoomIn" class="float-btn" title="Zoom in">＋</button>
-      <button id="fullScreen" class="float-btn" title="Fullscreen">⤢</button>
-    </div>
-  </div>
+/* forms */
+.alarm-list{margin:12px 0}
+.alarm-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.02)}
+.alarm-form{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.alarm-form input[type="time"], .alarm-form input[type="text"], .alarm-form select, .timer-controls input[type="number"]{
+  padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text)
+}
 
-  <footer class="footer">Built with ❤️ — page must be open for alarm sounds.</footer>
+/* buttons */
+.btn{background:linear-gradient(90deg,var(--accent1),var(--accent2));border:none;color:#071014;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
+.btn:hover{transform:translateY(-1px)}
 
-  <script src="script.js"></script>
-</body>
-</html>
+/* floating actions */
+.float-actions{position:fixed;right:28px;bottom:36px;display:flex;flex-direction:column;gap:10px;z-index:50}
+.float-btn{width:52px;height:44px;border-radius:8px;border:none;background:rgba(255,255,255,0.03);color:var(--text);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+.float-btn:hover{background:rgba(255,255,255,0.06)}
+
+/* tools overlay */
+.tools-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:60}
+.tools-card{background:#071014;color:var(--text);padding:18px;border-radius:10px;min-width:320px;max-width:720px;position:relative}
+.closeTools{position:absolute;right:8px;top:8px;background:transparent;border:none;color:var(--muted-2);font-size:18px;cursor:pointer}
+
+/* footer */
+.footer{text-align:center;color:var(--muted-2);padding:10px 0}
+
+/* small screens */
+@media (max-width:900px){
+  .sidebar{display:none}
+  .topbar{padding:0 12px}
+  .display{padding:16px}
+  .time{font-size:48px}
+}
