@@ -3,7 +3,7 @@
   --text:#dfffe0; --muted-2:rgba(200,200,200,0.3);
 }
 
-/* Basic reset */
+/* Reset */
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
@@ -12,41 +12,37 @@ body{
   display:flex;flex-direction:column;
 }
 
-/* topbar */
+/* Topbar */
 .topbar{
-  height:56px;background:var(--top);display:flex;align-items:center;justify-content:space-between;padding:0 20px;
-  color:#fff;
+  height:56px;background:var(--top);display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#fff;
 }
-.topbar .top-left{display:flex;gap:12px;align-items:center}
+.top-left{display:flex;gap:12px;align-items:center}
 .top-link{background:transparent;border:none;color:#fff;padding:6px 8px;cursor:pointer;font-weight:600}
 .tools-dropdown{position:relative}
-.tools-menu{
-  position:absolute;top:40px;left:0;background:#fff;color:#071014;border-radius:8px;padding:8px;display:none;
-  box-shadow:0 8px 24px rgba(0,0,0,0.4);
-}
+.tools-menu{position:absolute;top:40px;left:0;background:#fff;color:#071014;border-radius:8px;padding:8px;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
 .tools-menu button{display:block;background:transparent;border:none;padding:8px 12px;text-align:left;width:100%;cursor:pointer}
 .tools-menu button:hover{background:#f0f0f0}
 
 /* Layout */
 .app{display:flex;flex:1;min-height:calc(100vh - 56px);overflow:hidden}
 .sidebar{width:120px;background:#2f2f2f;color:#fff;padding:16px 8px;display:flex;flex-direction:column;align-items:center}
-.logo{font-family: 'Inter', sans-serif;font-weight:700;font-size:28px;margin-bottom:8px}
+.logo{font-weight:700;font-size:28px;margin-bottom:8px}
 .side-nav{width:100%;display:flex;flex-direction:column;gap:6px;margin-top:8px}
 .nav-item{
   background:transparent;border:none;color:#fff;padding:12px 8px;border-radius:4px;display:flex;align-items:center;gap:8px;flex-direction:column;
   cursor:pointer;width:100%;text-align:center;font-weight:600;font-size:13px;
 }
-.nav-item .nav-icon{width:28px;height:28px;opacity:0.9}
-.nav-item span{font-size:13px}
+.nav-item .nav-icon{width:28px;height:28px;opacity:0.95}
+.nav-item span{font-size:12px;display:block;margin-top:6px}
 .nav-item.active{background:#eee;color:#071014}
 .nav-item.active .nav-icon{filter:none}
 
-/* main area */
+/* Main */
 .main{flex:1;padding:28px;overflow:auto}
 .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.03)}
 .hidden{display:none}
 
-/* display */
+/* Display */
 .display{text-align:center;padding:30px 10px}
 .time{
   font-family: 'Orbitron', monospace;font-weight:700;font-size:84px;letter-spacing:3px;
@@ -56,7 +52,7 @@ body{
 }
 .date{color:var(--muted-2);font-size:15px;margin-top:8px}
 
-/* small */
+/* small time */
 .time-small{font-size:36px;font-weight:700;color:var(--accent1);text-align:center;margin:10px 0}
 
 /* controls */
@@ -76,7 +72,7 @@ body{
 .btn{background:linear-gradient(90deg,var(--accent1),var(--accent2));border:none;color:#071014;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
 .btn:hover{transform:translateY(-1px)}
 
-/* float actions */
+/* floating actions */
 .float-actions{position:fixed;right:28px;bottom:36px;display:flex;flex-direction:column;gap:10px;z-index:50}
 .float-btn{width:52px;height:44px;border-radius:8px;border:none;background:rgba(255,255,255,0.03);color:var(--text);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
 .float-btn:hover{background:rgba(255,255,255,0.06)}
@@ -89,7 +85,7 @@ body{
 /* footer */
 .footer{text-align:center;color:var(--muted-2);padding:10px 0}
 
-/* responsive */
+/* small screens */
 @media (max-width:900px){
   .sidebar{display:none}
   .topbar{padding:0 12px}
