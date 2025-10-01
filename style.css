@@ -112,4 +112,19 @@ body{
   display: flex;
   justify-content: center;
 }
+/* PayPal Donate Button Style */
+.donate-link {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #ffc439;
+  color: #000;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.donate-link:hover {
+  background: #f7b600;
+}
 
