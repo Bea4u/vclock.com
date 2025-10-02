@@ -96,13 +96,17 @@ body{
 /* small subline */
 .subline{ display:flex; gap:12px; color:var(--muted); font-size:14px; justify-content:center; margin-top:6px; }
 
+/* How to use */
+.howto{ max-width:800px; margin-top:10px; color:var(--muted); font-size:15px; text-align:center; line-height:1.5; padding:8px 12px; }
+.howto h4{ color:#dfffd9; margin-bottom:6px; }
+
 /* ---------- Views (beneath clock) ---------- */
 .views{ position: absolute; right:30px; bottom:24px; width:420px; max-width:42%; pointer-events:auto; }
 .view{ background: rgba(255,255,255,0.02); padding:14px; border-radius:10px; border:1px solid rgba(255,255,255,0.02); box-shadow:var(--shadow); color:#eaf9e8; }
 .view h3{ margin:0 0 8px 0; font-size:16px; color:#dfffd9 }
 
 /* alarms list */
-.alarms-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:8px; }
+.alarms-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:8px; max-height:160px; overflow:auto; }
 .alarm-item{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:rgba(255,255,255,0.01); padding:8px; border-radius:8px; }
 .alarm-controls{ display:flex; gap:8px; margin-top:6px; }
 .alarm-controls input[type="time"]{ padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,0.03); background:transparent; color:inherit; }
