@@ -1,130 +1,140 @@
+/* ---------- Base / Reset ---------- */
 :root{
-  --top:#3b3b3b; --bg:#000; --panel:#0b0d10; --muted:#9aa0a6; --accent1:#1bff9d; --accent2:#00d4ff;
-  --text:#dfffe0; --muted-2:rgba(200,200,200,0.3);
+  --bg:#0b0b0b;
+  --panel:#1f1f1f;
+  --muted:#999;
+  --accent:#00ff66;
+  --accent-dark:#00c24d;
+  --glass: rgba(255,255,255,0.03);
+  --radius:10px;
+  --shadow: 0 6px 20px rgba(0,0,0,0.6);
+  --font-main: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  --font-digi: 'Orbitron', monospace;
 }
-
-/* Reset */
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
-  margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
-  background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased;
-  display:flex;flex-direction:column;
-}
-
-/* Topbar */
-.topbar{
-  height:56px;background:var(--top);display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#fff;
-}
-.top-left{display:flex;gap:12px;align-items:center}
-.top-link{background:transparent;border:none;color:#fff;padding:6px 8px;cursor:pointer;font-weight:600}
-.tools-dropdown{position:relative}
-.tools-menu{position:absolute;top:40px;left:0;background:#fff;color:#071014;border-radius:8px;padding:8px;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
-.tools-menu button{display:block;background:transparent;border:none;padding:8px 12px;text-align:left;width:100%;cursor:pointer}
-.tools-menu button:hover{background:#f0f0f0}
-
-/* Layout */
-.app{display:flex;flex:1;min-height:calc(100vh - 56px);overflow:hidden}
-.sidebar{width:120px;background:#2f2f2f;color:#fff;padding:16px 8px;display:flex;flex-direction:column;align-items:center}
-.logo{font-weight:700;font-size:28px;margin-bottom:8px}
-.side-nav{width:100%;display:flex;flex-direction:column;gap:6px;margin-top:8px}
-.nav-item{
-  background:transparent;border:none;color:#fff;padding:12px 8px;border-radius:4px;display:flex;align-items:center;gap:8px;flex-direction:column;
-  cursor:pointer;width:100%;text-align:center;font-weight:600;font-size:13px;
-}
-.nav-item .nav-icon{width:28px;height:28px;opacity:0.95}
-.nav-item span{font-size:12px;display:block;margin-top:6px}
-.nav-item.active{background:#eee;color:#071014}
-.nav-item.active .nav-icon{filter:none}
-
-/* Main */
-.main{flex:1;padding:28px;overflow:auto}
-.panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.03)}
-.hidden{display:none}
-
-/* Display */
-.display{text-align:center;padding:30px 10px}
-.time{
-  font-family: 'Orbitron', monospace;font-weight:700;font-size:84px;letter-spacing:3px;
-  color:var(--accent1);
-  text-shadow: 0 0 30px rgba(27,255,157,0.18), 0 0 60px rgba(0,212,255,0.06);
   margin:0;
-}
-.date{color:var(--muted-2);font-size:15px;margin-top:8px}
-
-/* small time */
-.time-small{font-size:36px;font-weight:700;color:var(--accent1);text-align:center;margin:10px 0}
-
-/* controls */
-.controls{display:flex;gap:12px;justify-content:center;margin-top:12px;flex-wrap:wrap}
-.switch{display:flex;align-items:center;gap:8px;color:var(--muted-2);font-weight:700}
-.switch input{width:16px;height:16px}
-
-/* forms */
-.alarm-list{margin:12px 0}
-.alarm-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.02)}
-.alarm-form{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.alarm-form input[type="time"], .alarm-form input[type="text"], .alarm-form select, .timer-controls input[type="number"]{
-  padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text)
+  font-family:var(--font-main);
+  background:linear-gradient(180deg,#050505 0%, #0b0b0b 100%);
+  color:#e9f1e9;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow:hidden;
 }
 
-/* buttons */
-.btn{background:linear-gradient(90deg,var(--accent1),var(--accent2));border:none;color:#071014;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
-.btn:hover{transform:translateY(-1px)}
+/* ---------- Top bar ---------- */
+.topbar{
+  position:fixed;
+  left:0;right:0;top:0;
+  height:56px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 18px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  z-index:500;
+}
+.topbar .left { display:flex; align-items:center; gap:10px; }
+.topbar .top-link{ color:var(--accent); text-decoration:none; font-weight:600; margin-right:6px; }
+.dropbtn{ background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.03); padding:6px 8px; border-radius:6px; cursor:pointer; }
+.dropdown{ position:relative; }
+.dropdown-content{ position:absolute; top:36px; left:0; display:none; background:var(--panel); padding:6px; border-radius:8px; box-shadow:var(--shadow); min-width:160px; }
+.dropdown:hover .dropdown-content{ display:block; }
+.dropdown-content a{ display:block; color:#d6e9d6; padding:8px 10px; text-decoration:none; border-radius:6px; font-size:14px; }
+.dropdown-content a:hover{ background:rgba(255,255,255,0.02); }
 
-/* floating actions */
-.float-actions{position:fixed;right:28px;bottom:36px;display:flex;flex-direction:column;gap:10px;z-index:50}
-.float-btn{width:52px;height:44px;border-radius:8px;border:none;background:rgba(255,255,255,0.03);color:var(--text);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
-.float-btn:hover{background:rgba(255,255,255,0.06)}
+/* top-right */
+.topbar .right button{ background:transparent; border:0; color:#fff; padding:8px; margin-left:6px; cursor:pointer; font-size:18px; border-radius:6px; }
+.topbar .right button:hover{ background:rgba(255,255,255,0.02) }
 
-/* tools overlay */
-.tools-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:60}
-.tools-card{background:#071014;color:var(--text);padding:18px;border-radius:10px;min-width:320px;max-width:720px;position:relative}
-.closeTools{position:absolute;right:8px;top:8px;background:transparent;border:none;color:var(--muted-2);font-size:18px;cursor:pointer}
+/* ---------- Sidebar ---------- */
+.sidebar{
+  position:fixed;
+  left:0; top:56px; bottom:0;
+  width:260px;
+  padding:22px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+  border-right:1px solid rgba(255,255,255,0.03);
+  overflow:auto;
+  z-index:400;
+}
+.brand .logo{ font-size:28px; font-weight:700; color:var(--accent); letter-spacing:1px; margin-bottom:10px; font-family:var(--font-digi); }
 
-/* footer */
-.footer{text-align:center;color:var(--muted-2);padding:10px 0}
+/* nav */
+.nav{ display:flex; flex-direction:column; gap:8px; margin-top:6px; }
+.nav-item{
+  background:transparent; color:#dfffd9; text-align:left; border:0; padding:12px 14px; border-radius:8px; cursor:pointer; font-size:15px; display:flex; align-items:center; gap:8px;
+}
+.nav-item.active{ background:linear-gradient(90deg, rgba(0,255,102,0.06), rgba(0,0,0,0.03)); box-shadow:inset 0 0 0 1px rgba(0,255,102,0.03); }
+.nav-item:hover{ background:rgba(255,255,255,0.02); }
 
-/* small screens */
+/* donate */
+.donate-card{ margin-top:16px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:14px; border-radius:10px; text-align:center; border:1px solid rgba(255,255,255,0.02); }
+.donate-title{ color:var(--muted); margin-bottom:8px; font-size:14px; }
+.donate-actions{ display:flex; justify-content:center; gap:10px; }
+.donate-link{ display:inline-block; padding:10px 14px; border-radius:8px; text-decoration:none; color:#08110a; background:#f7c948; font-weight:700; box-shadow:0 6px 14px rgba(0,0,0,0.35); }
+.donate-link.primary{ background:#ffc439; }
+.donate-note{ margin-top:8px; color:var(--muted); font-size:13px; }
+
+/* ---------- Main ---------- */
+#main{ position:fixed; left:260px; right:0; top:56px; bottom:0; display:flex; align-items:center; justify-content:center; padding:30px; overflow:auto; }
+
+/* clock container */
+#clock-container{ display:flex; flex-direction:column; align-items:center; gap:16px; transition:transform 0.18s ease; transform-origin:center center; }
+
+/* big flip clock */
+.flip-clock{ display:flex; gap:12px; align-items:center; justify-content:center; }
+.flip-digit{
+  min-width:110px; padding:26px 14px; border-radius:12px; background:#000; color:var(--accent);
+  font-family:var(--font-digi); font-weight:700; font-size:84px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.7), 0 0 40px rgba(0,255,102,0.03) inset; letter-spacing:6px;
+  transform-origin:center center; transition:transform 180ms ease;
+}
+.flip-sep{ font-family:var(--font-digi); color:var(--accent); font-size:84px; padding-bottom:6px; }
+
+/* small subline */
+.subline{ display:flex; gap:12px; color:var(--muted); font-size:14px; justify-content:center; margin-top:6px; }
+
+/* ---------- Views (beneath clock) ---------- */
+.views{ position: absolute; right:30px; bottom:24px; width:420px; max-width:42%; pointer-events:auto; }
+.view{ background: rgba(255,255,255,0.02); padding:14px; border-radius:10px; border:1px solid rgba(255,255,255,0.02); box-shadow:var(--shadow); color:#eaf9e8; }
+.view h3{ margin:0 0 8px 0; font-size:16px; color:#dfffd9 }
+
+/* alarms list */
+.alarms-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:8px; }
+.alarm-item{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:rgba(255,255,255,0.01); padding:8px; border-radius:8px; }
+.alarm-controls{ display:flex; gap:8px; margin-top:6px; }
+.alarm-controls input[type="time"]{ padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,0.03); background:transparent; color:inherit; }
+
+/* timer/stopwatch */
+.timer-display, .stopwatch-display{ font-family:var(--font-digi); font-size:28px; margin:10px 0; color:var(--accent); background:rgba(0,0,0,0.45); padding:10px; border-radius:8px; text-align:center; }
+
+/* floating controls */
+.floating-controls{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); display:flex; gap:10px; z-index:600; }
+.floating-controls button{ width:44px; height:44px; border-radius:50%; border:0; background:rgba(255,255,255,0.03); color:#fff; font-size:18px; cursor:pointer; box-shadow:0 8px 22px rgba(0,0,0,0.5); }
+.floating-controls button:hover{ transform:translateY(-4px); background:rgba(255,255,255,0.04) }
+
+/* settings modal */
+.modal{ position:fixed; right:20px; top:80px; width:300px; z-index:900; }
+.modal-inner{ background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:16px; border-radius:10px; box-shadow:var(--shadow); border:1px solid rgba(255,255,255,0.02); }
+.modal h3{ margin:0 0 8px; }
+.modal label{ display:block; margin:8px 0; color:#dfffd9; font-size:14px; }
+.modal label span{ display:block; color:var(--muted); font-size:13px; margin-bottom:6px; }
+.modal input[type="color"], .modal select, .modal input[type="range"]{ width:100%; padding:6px; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,0.03); color:inherit; }
+
+/* hidden util */
+.hidden{ display:none !important; }
+
+/* fullscreen-mode hide chrome */
+.fullscreen-mode header, .fullscreen-mode aside, .fullscreen-mode .floating-controls{ display:none !important; }
+.fullscreen-mode #main{ left:0 !important; right:0; top:0; bottom:0; }
+.fullscreen-mode #clock-container{ transform:scale(1.6); }
+
+/* responsive */
 @media (max-width:900px){
-  .sidebar{display:none}
-  .topbar{padding:0 12px}
-  .display{padding:16px}
-  .time{font-size:48px}
+  .sidebar{ width:72px; padding:12px; }
+  #main{ left:72px; }
+  .nav-item{ font-size:12px; padding:8px; }
+  .flip-digit{ font-size:56px; min-width:80px; padding:18px; }
 }
-/* Sidebar Donate Box */
-.donate-box {
-  margin: 20px 10px;
-  padding: 15px;
-  background: #2b2b2b; /* dark block */
-  border-radius: 6px;
-  text-align: center;
-}
-
-.donate-box h3 {
-  color: #fff;
-  font-size: 14px;
-  margin-bottom: 10px;
-  font-weight: 500;
-}
-
-#paypal-button-container {
-  display: flex;
-  justify-content: center;
-}
-/* PayPal Donate Button Style */
-.donate-link {
-  display: inline-block;
-  padding: 10px 20px;
-  background: #ffc439;
-  color: #000;
-  text-decoration: none;
-  border-radius: 6px;
-  font-weight: bold;
-  transition: background 0.3s ease;
-}
-
-.donate-link:hover {
-  background: #f7b600;
-}
-
