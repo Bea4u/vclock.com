@@ -1,414 +1,423 @@
-// Full vClock clone functionality: tabs, clock, alarm, timer, stopwatch, tools, zoom, fullscreen, theme
-(() => {
-  // ELEMENTS
-  const navItems = document.querySelectorAll('.nav-item');
-  const panels = {
-    clock: document.getElementById('clock'),
-    alarm: document.getElementById('alarm'),
-    timer: document.getElementById('timer'),
-    stopwatch: document.getElementById('stopwatch')
-  };
+// ----------------- Utilities -----------------
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
 
-  // top/tools
-  const toolsBtn = document.getElementById('toolsBtn');
-  const toolsMenu = document.getElementById('toolsMenu');
-  const toolsOverlay = document.getElementById('toolsOverlay');
-  const toolContent = document.getElementById('toolContent');
-  const closeTools = document.getElementById('closeTools');
+/* --------- Elements --------- */
+const clockEl = $('#clock');
+const containerEl = $('#clock-container');
+const tzLabel = $('#timezone-label');
+const fmtLabel = $('#format-label');
 
-  // settings & UI
-  const themeToggle = document.getElementById('themeToggle');
-  const nightMode = document.getElementById('nightMode');
-  const toggle24 = document.getElementById('toggle24');
-  const showDate = document.getElementById('showDate');
+const navItems = $$('.nav-item');
+const views = $$('.view');
 
-  // display elements
-  const timeEl = document.getElementById('time');
-  const dateEl = document.getElementById('date');
+const themeToggle = $('#theme-toggle');
+const settingsBtn = $('#settings-btn');
+const settingsModal = $('#settings-modal');
+const closeSettings = $('#close-settings');
+const saveSettings = $('#save-settings');
+const resetSettings = $('#reset-settings');
 
-  // alarm elements
-  const alarmListEl = document.getElementById('alarmList');
-  const addAlarmForm = document.getElementById('addAlarmForm');
-  const alarmTimeInput = document.getElementById('alarmTime');
-  const alarmLabelInput = document.getElementById('alarmLabel');
-  const alarmRepeat = document.getElementById('alarmRepeat');
+const formatSelect = $('#format-select');
+const toggleSeconds = $('#toggle-seconds');
+const clockColorInput = $('#clock-color');
+const bgColorInput = $('#bg-color');
+const fontScale = $('#font-scale');
 
-  // timer elements
-  const timerTime = document.getElementById('timerTime');
-  const timerMinutes = document.getElementById('timerMinutes');
-  const startTimerBtn = document.getElementById('startTimer');
-  const pauseTimerBtn = document.getElementById('pauseTimer');
-  const resetTimerBtn = document.getElementById('resetTimer');
+const fullscreenBtn = $('#fullscreen');
+const zoomInBtn = $('#zoom-in');
+const zoomOutBtn = $('#zoom-out');
+const shareBtn = $('#share-btn');
 
-  // stopwatch
-  const swTime = document.getElementById('swTime');
-  const swStart = document.getElementById('swStart');
-  const swLap = document.getElementById('swLap');
-  const swStop = document.getElementById('swStop');
-  const swReset = document.getElementById('swReset');
-  const lapsEl = document.getElementById('laps');
+/* Timer/stopwatch/alarm elements */
+const alarmsListEl = $('#alarms-list');
+const alarmTimeInput = $('#alarm-time');
+const alarmLabelInput = $('#alarm-label');
+const addAlarmBtn = $('#add-alarm');
 
-  // floating actions
-  const shareBtn = document.getElementById('shareBtn');
-  const zoomInBtn = document.getElementById('zoomIn');
-  const zoomOutBtn = document.getElementById('zoomOut');
-  const fullScreenBtn = document.getElementById('fullScreen');
+const timerDisplay = $('#timer-display');
+const timerMin = $('#timer-min');
+const timerSec = $('#timer-sec');
+const timerStart = $('#timer-start');
+const timerPause = $('#timer-pause');
+const timerReset = $('#timer-reset');
 
-  // state
-  let alarms = JSON.parse(localStorage.getItem('vc_alarms') || '[]');
-  let uiSettings = JSON.parse(localStorage.getItem('vc_ui') || '{}');
-  let alarmSoundCtx = null;
-  let alarmPlaying = false;
+const swDisplay = $('#stopwatch-display');
+const swStart = $('#sw-start');
+const swStop = $('#sw-stop');
+const swLap = $('#sw-lap');
+const swReset = $('#sw-reset');
+const lapsEl = $('#laps');
 
-  // timer state
-  let timerRemaining = 0;
-  let timerInterval = null;
-  let timerTarget = null;
+/* World clocks */
+const wcLocal = $('#wc-local');
+const wcUtc = $('#wc-utc');
+const wcNY = $('#wc-ny');
+const wcLon = $('#wc-lon');
 
-  // stopwatch state
-  let swRunning = false;
-  let swStartTs = 0;
-  let swElapsed = 0;
-  let swInterval = null;
+/* ---------- State & Defaults ---------- */
+let settings = {
+  format: localStorage.getItem('vc_format') || '24',
+  showSeconds: localStorage.getItem('vc_secs') === 'true' ? true : true,
+  clockColor: localStorage.getItem('vc_color') || '#00FF00',
+  bgColor: localStorage.getItem('vc_bg') || '#000000',
+  scale: parseFloat(localStorage.getItem('vc_scale')) || 1.2
+};
+let zoomLevel = 1;
 
-  // util
-  const pad = n => (n < 10 ? '0' + n : String(n));
-  function formatDate(d) {
-    return d.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'short', day:'numeric' });
-  }
-  function formatClock(d, use24 = false) {
-    let hh = d.getHours(), mm = d.getMinutes(), ss = d.getSeconds();
-    if (!use24) {
-      const ampm = hh >= 12 ? 'PM' : 'AM';
-      hh = hh % 12 || 12;
-      return `${pad(hh)}:${pad(mm)}:${pad(ss)} ${ampm}`;
+/* ---------- Clock Rendering ---------- */
+function buildClockDigits(showSeconds = settings.showSeconds) {
+  clockEl.innerHTML = '';
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+
+  const timeStr = hh + mm + (showSeconds ? ss : '');
+
+  for (let i=0, d=0; i < timeStr.length; i++) {
+    const ch = timeStr[i];
+    const digit = document.createElement('div');
+    digit.className = 'flip-digit';
+    digit.textContent = ch;
+    clockEl.appendChild(digit);
+    d++;
+    // insert separators: after HH and after MM if showing seconds
+    if (i === 1 || (showSeconds && i === 3)) {
+      const sep = document.createElement('div');
+      sep.className = 'flip-sep';
+      sep.textContent = ':';
+      clockEl.appendChild(sep);
     }
-    return `${pad(hh)}:${pad(mm)}:${pad(ss)}`;
+  }
+}
+function updateClockAnimation() {
+  const showSeconds = settings.showSeconds;
+  const now = new Date();
+  const hh = formatHour(now.getHours(), settings.format);
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  const ss = String(now.getSeconds()).padStart(2,'0');
+  const timeStr = hh + mm + (showSeconds ? ss : '');
+  const digits = Array.from(clockEl.querySelectorAll('.flip-digit'));
+
+  // If structure length mismatched (e.g., toggled seconds), rebuild
+  if (digits.length !== timeStr.length) {
+    buildClockDigits(showSeconds);
+    return;
   }
 
-  // TAB navigation
-  function setActive(tabName) {
-    Object.keys(panels).forEach(k => panels[k].classList.toggle('hidden', k !== tabName));
-    navItems.forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
-  }
-  navItems.forEach(b => b.addEventListener('click', () => setActive(b.dataset.tab)));
-
-  // default
-  setActive('alarm');
-
-  // CLOCK tick
-  function tickClock() {
-    const now = new Date();
-    timeEl.textContent = formatClock(now, toggle24.checked);
-    dateEl.textContent = showDate.checked ? formatDate(now) : '';
-    checkAlarms(now);
-  }
-  setInterval(tickClock, 1000);
-  tickClock();
-
-  // ALARMS
-  function renderAlarms() {
-    alarmListEl.innerHTML = '';
-    if (!alarms.length) {
-      alarmListEl.innerHTML = '<div style="color:rgba(200,200,200,0.5)">No alarms set</div>';
-      return;
-    }
-    alarms.forEach((a, i) => {
-      const item = document.createElement('div'); item.className = 'alarm-item';
-      const left = document.createElement('div');
-      left.innerHTML = `<strong>${a.label || 'Alarm'}</strong><div style="color:rgba(200,200,200,0.5);font-size:13px">${a.time} • ${a.repeat}</div>`;
-      const right = document.createElement('div');
-      const del = document.createElement('button'); del.className='btn'; del.textContent='Delete';
-      del.addEventListener('click', () => { alarms.splice(i,1); saveAlarms(); renderAlarms(); });
-      right.appendChild(del);
-      item.appendChild(left); item.appendChild(right);
-      alarmListEl.appendChild(item);
-    });
-  }
-  function saveAlarms(){ localStorage.setItem('vc_alarms', JSON.stringify(alarms)); }
-  addAlarmForm && addAlarmForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const t = alarmTimeInput.value;
-    if (!t) return;
-    alarms.push({ time: t, label: alarmLabelInput.value || 'Alarm', repeat: alarmRepeat.value || 'once', active: true });
-    saveAlarms(); renderAlarms(); addAlarmForm.reset();
-  });
-
-  function checkAlarms(now){
-    if (!alarms.length) return;
-    const hhmm = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    alarms.forEach((a, i) => {
-      if (a.active && a.time === hhmm && now.getSeconds() === 0) {
-        if (a.repeat === 'once') { a.active = false; saveAlarms(); renderAlarms(); }
-        if (a.repeat === 'weekdays') { const d = now.getDay(); if (d === 0 || d === 6) return; }
-        triggerAlarm(a);
+  let idx = 0;
+  for (let i=0;i<clockEl.children.length;i++){
+    const child = clockEl.children[i];
+    if (child.classList.contains('flip-digit')) {
+      const newChar = timeStr[idx];
+      if (child.textContent !== newChar) {
+        // flip animation
+        child.style.transform = 'rotateX(180deg)';
+        setTimeout(()=> {
+          child.textContent = newChar;
+          child.style.transform = 'rotateX(0deg)';
+        },180);
       }
-    });
-  }
-
-  function ensureAudioCtx(){
-    if (!alarmSoundCtx) alarmSoundCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  function playAlarmSound(){
-    ensureAudioCtx();
-    const ctx = alarmSoundCtx;
-    const o1 = ctx.createOscillator(), o2 = ctx.createOscillator();
-    const g = ctx.createGain();
-    o1.type='sine'; o2.type='triangle';
-    o1.frequency.value = 880; o2.frequency.value = 440;
-    o1.connect(g); o2.connect(g); g.connect(ctx.destination);
-    g.gain.value = 0;
-    const now = ctx.currentTime;
-    o1.start(now); o2.start(now);
-    g.gain.linearRampToValueAtTime(0.35, now + 0.05);
-    o1.frequency.linearRampToValueAtTime(440, now + 1);
-    g.gain.exponentialRampToValueAtTime(0.0001, now + 6);
-    o1.stop(now + 6); o2.stop(now + 6);
-  }
-  function triggerAlarm(a){
-    if (alarmPlaying) return;
-    alarmPlaying = true;
-    playAlarmSound();
-    const stop = confirm(`${a.label || 'Alarm'}\n\nStop alarm?`);
-    alarmPlaying = false;
-  }
-  renderAlarms();
-
-  // TIMER
-  function renderTimer(){
-    const mm = Math.floor(timerRemaining / 60), ss = timerRemaining % 60;
-    timerTime.textContent = `${pad(mm)}:${pad(ss)}`;
-  }
-  startTimerBtn && startTimerBtn.addEventListener('click', () => {
-    if (timerInterval) return;
-    const m = Math.max(0, parseInt(timerMinutes.value,10) || 0);
-    timerRemaining = Math.round(m * 60);
-    if (timerRemaining <= 0) return;
-    timerTarget = Date.now() + timerRemaining * 1000;
-    timerInterval = setInterval(() => {
-      timerRemaining = Math.max(0, Math.round((timerTarget - Date.now())/1000));
-      renderTimer();
-      if (timerRemaining <= 0) {
-        clearInterval(timerInterval); timerInterval = null;
-        ensureAudioCtx(); playAlarmSound(); alert('Timer finished');
-      }
-    }, 250);
-  });
-  pauseTimerBtn && pauseTimerBtn.addEventListener('click', () => { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } });
-  resetTimerBtn && resetTimerBtn.addEventListener('click', () => { if (timerInterval) { clearInterval(timerInterval); timerInterval=null; } timerRemaining=0; renderTimer(); });
-  renderTimer();
-
-  // STOPWATCH
-  function renderStopwatch(){
-    const total = swElapsed + (swRunning ? (Date.now() - swStartTs) : 0);
-    const s = Math.floor(total/1000), ms = Math.floor((total % 1000) / 10);
-    const mm = Math.floor(s/60), ss = s % 60;
-    swTime.textContent = `${pad(mm)}:${pad(ss)}.${pad(ms)}`;
-  }
-  swStart && swStart.addEventListener('click', () => {
-    if (swRunning) return;
-    swRunning = true; swStartTs = Date.now(); swInterval = setInterval(renderStopwatch, 50);
-  });
-  swStop && swStop.addEventListener('click', () => {
-    if (!swRunning) return; swRunning = false; clearInterval(swInterval); swElapsed += Date.now() - swStartTs; renderStopwatch();
-  });
-  swReset && swReset.addEventListener('click', () => { swRunning=false; clearInterval(swInterval); swElapsed=0; swStartTs=0; lapsEl.innerHTML=''; renderStopwatch(); });
-  swLap && swLap.addEventListener('click', () => {
-    const total = swElapsed + (swRunning ? (Date.now() - swStartTs) : 0);
-    const s = Math.floor(total/1000), ms = Math.floor((total%1000)/10);
-    const mm = Math.floor(s/60), ss = s%60;
-    const li = document.createElement('li'); li.textContent = `${pad(mm)}:${pad(ss)}.${pad(ms)}`; lapsEl.prepend(li);
-  });
-
-  // UI settings persistence
-  function saveUI(){
-    localStorage.setItem('vc_ui', JSON.stringify({
-      use24: toggle24.checked,
-      showDate: showDate.checked,
-      nightMode: nightMode.checked
-    }));
-  }
-  function loadUI(){
-    const s = JSON.parse(localStorage.getItem('vc_ui') || '{}');
-    if (s.use24) toggle24.checked = s.use24;
-    if (typeof s.showDate !== 'undefined') showDate.checked = s.showDate;
-    if (s.nightMode) nightMode.checked = s.nightMode;
-    applyNightMode();
-  }
-  toggle24 && toggle24.addEventListener('change', saveUI);
-  showDate && showDate.addEventListener('change', saveUI);
-  nightMode && nightMode.addEventListener('change', () => { saveUI(); applyNightMode(); });
-  function applyNightMode(){
-    if (nightMode.checked) document.body.style.background = 'linear-gradient(180deg,#000012 0%, #06061a 60%)';
-    else document.body.style.background = 'var(--bg)';
-  }
-  loadUI();
-
-  // TOOLS dropdown toggle
-  toolsBtn && toolsBtn.addEventListener('click', (e) => {
-    const open = toolsMenu.style.display === 'block';
-    toolsMenu.style.display = open ? 'none' : 'block';
-    toolsMenu.setAttribute('aria-hidden', open ? 'true' : 'false');
-  });
-  document.addEventListener('click', (e) => {
-    if (!toolsBtn.contains(e.target) && !toolsMenu.contains(e.target)) { toolsMenu.style.display = 'none'; toolsMenu.setAttribute('aria-hidden','true'); }
-  });
-  // tools actions
-  toolsMenu.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
-    const t = b.dataset.tool; openTool(t); toolsMenu.style.display='none';
-  }));
-
-  function openTool(tool){
-    toolsOverlay.classList.remove('hidden');
-    toolContent.innerHTML = '';
-    if (tool === 'world') showWorldClock();
-    else if (tool === 'online-timer') showOnlineTimer();
-    else if (tool === 'pomodoro') showPomodoro();
-  }
-  closeTools && closeTools.addEventListener('click', () => toolsOverlay.classList.add('hidden'));
-  toolsOverlay && toolsOverlay.addEventListener('click', (e) => { if (e.target === toolsOverlay) toolsOverlay.classList.add('hidden'); });
-
-  // World clock
-  function showWorldClock(){
-    toolContent.innerHTML = `
-      <h3>World Clock</h3>
-      <p>Add timezone (IANA) e.g. "America/New_York"</p>
-      <div style="display:flex;gap:8px"><input id="tzInput" placeholder="America/New_York"><button id="addTz" class="btn">Add</button></div>
-      <div id="tzList" style="margin-top:12px"></div>
-    `;
-    const tzList = document.getElementById('tzList');
-    const saved = JSON.parse(localStorage.getItem('vc_tz') || '[]');
-    saved.forEach(t => appendTZ(tzList, t));
-    document.getElementById('addTz').addEventListener('click', () => {
-      const val = document.getElementById('tzInput').value.trim(); if (!val) return;
-      const arr = JSON.parse(localStorage.getItem('vc_tz') || '[]'); arr.push(val); localStorage.setItem('vc_tz', JSON.stringify(arr)); appendTZ(tzList, val);
-    });
-    function appendTZ(container, tz){
-      const el = document.createElement('div'); el.style.marginBottom='8px';
-      el.innerHTML = `<strong>${tz}</strong> — <span class="tzTime">loading...</span>`;
-      const rem = document.createElement('button'); rem.textContent='Remove'; rem.className='btn'; rem.style.marginLeft='8px';
-      rem.addEventListener('click', () => {
-        const arr = JSON.parse(localStorage.getItem('vc_tz')||'[]').filter(x => x!==tz); localStorage.setItem('vc_tz', JSON.stringify(arr)); el.remove();
-      });
-      el.appendChild(rem); container.appendChild(el);
-      function update(){
-        try {
-          const time = new Intl.DateTimeFormat(undefined,{timeZone:tz, hour:'2-digit', minute:'2-digit', second:'2-digit'}).format(new Date());
-          el.querySelector('.tzTime').textContent = time;
-        } catch { el.querySelector('.tzTime').textContent = 'Invalid timezone'; }
-      }
-      update(); setInterval(update, 1000);
+      idx++;
     }
   }
 
-  // Online timer
-  function showOnlineTimer(){
-    toolContent.innerHTML = `
-      <h3>Online Timer</h3>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input id="otMinutes" type="number" value="5" style="width:80px;padding:8px;border-radius:6px">
-        <span>minutes</span>
-        <button id="otStart" class="btn">Start</button>
-        <button id="otStop" class="btn">Stop</button>
-        <div id="otDisplay" style="margin-left:12px;font-weight:700">00:00</div>
-      </div>
-    `;
-    let otRemaining=0, otInterval=null; const d=document.getElementById('otDisplay');
-    document.getElementById('otStart').addEventListener('click', () => {
-      const m = Math.max(0, parseInt(document.getElementById('otMinutes').value,10)||0);
-      otRemaining = m*60; if (otInterval) clearInterval(otInterval);
-      otInterval = setInterval(() => {
-        otRemaining = Math.max(0, otRemaining-1); const mm=Math.floor(otRemaining/60), ss=otRemaining%60; d.textContent = `${pad(mm)}:${pad(ss)}`;
-        if (otRemaining<=0){ clearInterval(otInterval); ensureAudioCtx(); playAlarmSound(); alert('Online timer finished'); }
-      },1000);
-    });
-    document.getElementById('otStop').addEventListener('click', () => { if (otInterval) clearInterval(otInterval); otRemaining=0; d.textContent='00:00'; });
-  }
+  // update sub labels
+  tzLabel.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  fmtLabel.textContent = `${settings.format}h ${showSeconds ? 'with' : 'no'} seconds`;
+}
 
-  // Pomodoro
-  function showPomodoro(){
-    toolContent.innerHTML = `
-      <h3>Pomodoro</h3>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input id="workMin" type="number" value="25" style="width:80px;padding:8px">
-        <span>work</span>
-        <input id="breakMin" type="number" value="5" style="width:80px;padding:8px">
-        <span>break</span>
-        <button id="startPom" class="btn">Start</button>
-        <button id="stopPom" class="btn">Stop</button>
-        <div id="pomDisplay" style="margin-left:12px;font-weight:700">00:00</div>
-      </div>
-    `;
-    let pomRemaining=0, pomInterval=null, isWork=true;
-    const disp=document.getElementById('pomDisplay');
-    document.getElementById('startPom').addEventListener('click', () => {
-      const w = Math.max(1, parseInt(document.getElementById('workMin').value,10)||25);
-      const b = Math.max(1, parseInt(document.getElementById('breakMin').value,10)||5);
-      isWork=true; pomRemaining = w*60; disp.textContent = `${pad(Math.floor(pomRemaining/60))}:${pad(pomRemaining%60)}`;
-      if (pomInterval) clearInterval(pomInterval);
-      pomInterval = setInterval(() => {
-        pomRemaining = Math.max(0, pomRemaining-1); disp.textContent = `${pad(Math.floor(pomRemaining/60))}:${pad(pomRemaining%60)}`;
-        if (pomRemaining<=0){ ensureAudioCtx(); playAlarmSound(); if (isWork){ isWork=false; pomRemaining=b*60; alert('Work session done — break time!'); } else { isWork=true; pomRemaining=w*60; alert('Break finished — start work!'); } }
-      },1000);
-    });
-    document.getElementById('stopPom').addEventListener('click', () => { if (pomInterval) clearInterval(pomInterval); disp.textContent='00:00'; });
-  }
+/* format helper */
+function formatHour(h, fmt) {
+  if (fmt === '24') return String(h).padStart(2,'0');
+  // 12-hour
+  let hh = h % 12;
+  if (hh === 0) hh = 12;
+  return String(hh).padStart(2,'0');
+}
 
-  // SHARE
-  shareBtn && shareBtn.addEventListener('click', async () => {
-    const shareData = { title:'vClock clone', text:'Online clock', url: location.href };
+/* start loop */
+buildClockDigits(settings.showSeconds);
+setInterval(updateClockAnimation, 1000);
+updateClockAnimation();
+
+/* ---------- UI: nav switch ---------- */
+navItems.forEach(btn => {
+  btn.addEventListener('click', () => {
+    navItems.forEach(i=>i.classList.remove('active'));
+    btn.classList.add('active');
+    const view = btn.dataset.view;
+    views.forEach(v => v.hidden = v.dataset.view !== view);
+  });
+});
+
+/* ---------- Theme & Settings ---------- */
+function applySettingsToUI() {
+  // color
+  $$(' .flip-digit, .flip-sep').forEach; // no-op safety
+  clockEl.style.color = settings.clockColor;
+  document.body.style.background = `linear-gradient(180deg, ${shadeColor(settings.bgColor, -6)} 0%, ${settings.bgColor} 100%)`;
+  containerEl.style.transform = `scale(${settings.scale})`;
+  // apply font scale to flip-digit size
+  const digits = document.querySelectorAll('.flip-digit');
+  digits.forEach(d => {
+    d.style.color = settings.clockColor;
+  });
+  formatSelect.value = settings.format;
+  toggleSeconds.checked = settings.showSeconds;
+  clockColorInput.value = settings.clockColor;
+  bgColorInput.value = settings.bgColor;
+  fontScale.value = settings.scale;
+}
+function shadeColor(hex, percent) {
+  // simple shade function: hex -> shaded hex
+  const f = hex.slice(1), t = percent<0?0:255, p = Math.abs(percent)/100;
+  const R = parseInt(f.substring(0,2),16), G = parseInt(f.substring(2,4),16), B = parseInt(f.substring(4,6),16);
+  const newR = Math.round((t-R)*p)+R, newG = Math.round((t-G)*p)+G, newB = Math.round((t-B)*p)+B;
+  return `rgb(${newR}, ${newG}, ${newB})`;
+}
+
+/* settings open/close */
+settingsBtn.addEventListener('click', ()=> {
+  settingsModal.classList.toggle('hidden');
+});
+$('#close-settings').addEventListener('click', ()=> settingsModal.classList.add('hidden'));
+
+/* save settings */
+saveSettings && saveSettings.addEventListener('click', () => {
+  settings.format = formatSelect.value;
+  settings.showSeconds = toggleSeconds.checked;
+  settings.clockColor = clockColorInput.value;
+  settings.bgColor = bgColorInput.value;
+  settings.scale = parseFloat(fontScale.value);
+  // persist
+  localStorage.setItem('vc_format', settings.format);
+  localStorage.setItem('vc_secs', settings.showSeconds);
+  localStorage.setItem('vc_color', settings.clockColor);
+  localStorage.setItem('vc_bg', settings.bgColor);
+  localStorage.setItem('vc_scale', settings.scale);
+  applySettingsToUI();
+  settingsModal.classList.add('hidden');
+});
+
+/* reset */
+resetSettings && resetSettings.addEventListener('click', ()=> {
+  settings = { format:'24', showSeconds:true, clockColor:'#00FF00', bgColor:'#000000', scale:1.2 };
+  localStorage.removeItem('vc_format');
+  localStorage.removeItem('vc_secs');
+  localStorage.removeItem('vc_color');
+  localStorage.removeItem('vc_bg');
+  localStorage.removeItem('vc_scale');
+  applySettingsToUI();
+});
+
+/* initial apply */
+applySettingsToUI();
+
+/* ---------- Theme toggle (light/dark) ---------- */
+themeToggle.addEventListener('click', ()=> {
+  document.body.classList.toggle('light-mode');
+  // simple switch: invert background color
+  if (document.body.classList.contains('light-mode')) {
+    document.body.style.background = '#f7faf7';
+    document.body.style.color = '#041';
+  } else {
+    applySettingsToUI();
+  }
+});
+
+/* ---------- Zoom controls ---------- */
+zoomInBtn.addEventListener('click', ()=> {
+  zoomLevel = Math.min(2.4, zoomLevel + 0.1);
+  containerEl.style.transform = `scale(${zoomLevel * settings.scale})`;
+});
+zoomOutBtn.addEventListener('click', ()=> {
+  zoomLevel = Math.max(0.6, zoomLevel - 0.1);
+  containerEl.style.transform = `scale(${zoomLevel * settings.scale})`;
+});
+
+/* share */
+shareBtn.addEventListener('click', async ()=> {
+  const url = location.href;
+  try{
     if (navigator.share) {
-      try { await navigator.share(shareData); } catch {}
+      await navigator.share({ title: 'vClock clone', url });
     } else {
-      try { await navigator.clipboard.writeText(location.href); alert('Link copied to clipboard'); } catch { prompt('Copy link', location.href); }
+      await navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard');
     }
+  }catch(e){ console.warn(e); alert('Unable to share'); }
+});
+
+/* fullscreen (toggle UI chrome) */
+fullscreenBtn.addEventListener('click', async ()=> {
+  if (!document.fullscreenElement) {
+    await document.documentElement.requestFullscreen();
+    document.body.classList.add('fullscreen-mode');
+  } else {
+    await document.exitFullscreen();
+  }
+});
+document.addEventListener('fullscreenchange', ()=> {
+  if (!document.fullscreenElement) document.body.classList.remove('fullscreen-mode');
+});
+
+/* ---------- World clocks update ---------- */
+function updateWorldClocks(){
+  const now = new Date();
+  wcLocal.textContent = now.toLocaleTimeString();
+  wcUtc.textContent = now.toLocaleString('en-GB', { timeZone: 'UTC', hour:'2-digit', minute:'2-digit', second: '2-digit' });
+  wcNY.textContent = now.toLocaleString('en-US', { timeZone: 'America/New_York', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  wcLon.textContent = now.toLocaleString('en-GB', { timeZone: 'Europe/London', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+setInterval(updateWorldClocks,1000);
+updateWorldClocks();
+
+/* ---------- Alarm system ---------- */
+let alarms = JSON.parse(localStorage.getItem('vc_alarms') || '[]');
+
+function renderAlarms(){
+  alarmsListEl.innerHTML = '';
+  if (alarms.length === 0) {
+    alarmsListEl.innerHTML = '<div class="alarm-empty" style="color:var(--muted)">No alarms set</div>';
+    return;
+  }
+  alarms.forEach((a, idx) => {
+    const item = document.createElement('div');
+    item.className = 'alarm-item';
+    item.innerHTML = `<div><strong>${a.time}</strong> ${a.label?('- '+a.label):''}</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button data-idx="${idx}" class="alarm-toggle">${a.enabled? 'On':'Off'}</button>
+        <button data-del="${idx}" class="alarm-delete">✖</button>
+      </div>`;
+    alarmsListEl.appendChild(item);
   });
+  // wire events
+  $$('.alarm-delete').forEach(b => b.addEventListener('click', e => {
+    const i = parseInt(e.target.dataset.del,10);
+    alarms.splice(i,1);
+    localStorage.setItem('vc_alarms', JSON.stringify(alarms));
+    renderAlarms();
+  }));
+  $$('.alarm-toggle').forEach(b => b.addEventListener('click', e => {
+    const i = parseInt(e.target.dataset.idx,10);
+    alarms[i].enabled = !alarms[i].enabled;
+    localStorage.setItem('vc_alarms', JSON.stringify(alarms));
+    renderAlarms();
+  }));
+}
+renderAlarms();
 
-  // ZOOM
-  zoomInBtn && zoomInBtn.addEventListener('click', () => {
-    const el = document.querySelector('.time'); const cur = parseFloat(window.getComputedStyle(el).fontSize);
-    el.style.fontSize = Math.min(240, cur + 8) + 'px';
-  });
-  zoomOutBtn && zoomOutBtn.addEventListener('click', () => {
-    const el = document.querySelector('.time'); const cur = parseFloat(window.getComputedStyle(el).fontSize);
-    el.style.fontSize = Math.max(24, cur - 8) + 'px';
-  });
-
-  // FULLSCREEN
-  fullScreenBtn && fullScreenBtn.addEventListener('click', async () => {
-    const doc = document.documentElement;
-    if (!document.fullscreenElement) {
-      try { await doc.requestFullscreen(); } catch { alert('Cannot enter fullscreen'); }
-    } else { if (document.exitFullscreen) await document.exitFullscreen(); }
-  });
-
-  // THEME toggle (top button toggles night checkbox)
-  themeToggle && themeToggle.addEventListener('click', () => { nightMode.checked = !nightMode.checked; saveUI(); applyNightMode(); });
-
-  // LOAD & INIT
-  function saveUI(){ localStorage.setItem('vc_ui', JSON.stringify({ use24: toggle24.checked, showDate: showDate.checked, nightMode: nightMode.checked })); }
-  function loadUI(){ const s = JSON.parse(localStorage.getItem('vc_ui') || '{}'); if (s.use24) toggle24.checked = s.use24; if (typeof s.showDate !== 'undefined') showDate.checked = s.showDate; if (s.nightMode) nightMode.checked = s.nightMode; applyNightMode(); }
-  loadUI();
-
-  // ensure alarms array exists
-  if (!Array.isArray(alarms)) alarms = [];
+addAlarmBtn.addEventListener('click', ()=> {
+  const t = alarmTimeInput.value;
+  if (!t) { alert('Choose a time'); return; }
+  const label = alarmLabelInput.value.trim();
+  alarms.push({ time: t, label, enabled: true });
+  localStorage.setItem('vc_alarms', JSON.stringify(alarms));
+  alarmTimeInput.value=''; alarmLabelInput.value='';
   renderAlarms();
+});
 
-  // init default active
-  setActive('alarm');
-
-  // allow Escape to close overlays
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (toolsOverlay) toolsOverlay.classList.add('hidden'); toolsMenu.style.display='none'; } });
-
-  // Query param setAlarm handler
-  (function handleQueryAlarm(){
-    const params = new URLSearchParams(location.search);
-    const set = params.get('setAlarm'); const label = params.get('label') || '';
-    if (set && /^\d{1,2}:\d{2}$/.test(set)) {
-      const hhmm = set.split(':').map(n => pad(Number(n))).slice(0,2).join(':');
-      alarms.push({ time: hhmm, label, repeat: 'once', active:true });
-      saveAlarms(); renderAlarms();
+// check alarms every 1 second
+setInterval(()=> {
+  const now = new Date();
+  const cur = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  alarms.forEach(a => {
+    if (a.enabled && a.time === cur && name !== '__alarm_fired') {
+      // fire once per minute (simple)
+      alert(`Alarm: ${a.label || a.time}`);
+      // You could play a sound here
     }
-  })();
+  });
+},1000);
 
-})();
+/* ---------- Timer ---------- */
+let timerInterval = null;
+let timerRemaining = 0;
+
+function formatHMS(sec) {
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  return [h,m,s].map(x=>String(x).padStart(2,'0')).join(':');
+}
+timerStart.addEventListener('click', ()=> {
+  const m = parseInt(timerMin.value || '0',10);
+  const s = parseInt(timerSec.value || '0',10);
+  timerRemaining = m*60 + s;
+  if (!timerRemaining) return alert('Set minutes or seconds');
+  timerDisplay.textContent = formatHMS(timerRemaining);
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(()=> {
+    timerRemaining--;
+    timerDisplay.textContent = formatHMS(timerRemaining);
+    if (timerRemaining<=0) {
+      clearInterval(timerInterval);
+      alert('Timer finished');
+    }
+  },1000);
+});
+timerPause.addEventListener('click', ()=> {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval=null; }
+});
+timerReset.addEventListener('click', ()=> {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
+  timerRemaining = 0;
+  timerDisplay.textContent = '00:00:00';
+});
+
+/* ---------- Stopwatch ---------- */
+let swStartTs = 0, swElapsed = 0, swTimer = null, lapCount=0;
+swStart.addEventListener('click', ()=> {
+  if (!swTimer) {
+    swStartTs = Date.now();
+    swTimer = setInterval(()=> {
+      const now = Date.now();
+      const t = swElapsed + Math.floor((now - swStartTs)/100);
+      const secs = Math.floor(t/10)/10;
+      const hh = Math.floor(secs/3600), mm = Math.floor((secs%3600)/60), ss = (secs%60).toFixed(1);
+      swDisplay.textContent = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(4,'0')}`;
+    },100);
+    swStart.textContent = 'Pause';
+  } else {
+    // pause
+    clearInterval(swTimer);
+    swTimer = null;
+    swElapsed += Math.floor((Date.now() - swStartTs)/100);
+    swStart.textContent = 'Resume';
+  }
+});
+swStop.addEventListener('click', ()=> {
+  if (swTimer) { clearInterval(swTimer); swTimer=null; }
+  swStart.textContent = 'Start';
+  swElapsed = 0; swStartTs = 0;
+  swDisplay.textContent = '00:00:00.0';
+  lapsEl.innerHTML = '';
+  lapCount = 0;
+});
+swLap.addEventListener('click', ()=> {
+  lapCount++;
+  const div = document.createElement('div');
+  div.textContent = `${lapCount}. ${swDisplay.textContent}`;
+  lapsEl.prepend(div);
+});
+swReset.addEventListener('click', ()=> {
+  if (swTimer) clearInterval(swTimer);
+  swTimer = null; swStart.textContent='Start'; swElapsed=0; swStartTs=0;
+  swDisplay.textContent = '00:00:00.0'; lapsEl.innerHTML=''; lapCount=0;
+});
+
+/* ---------- Init view sizes ---------- */
+containerEl.style.transform = `scale(${settings.scale})`;
+
+/* ---------- Persistence on load ---------- */
+window.addEventListener('DOMContentLoaded', ()=> {
+  // load small UI settings into controls
+  formatSelect.value = settings.format;
+  toggleSeconds.checked = settings.showSeconds;
+  clockColorInput.value = settings.clockColor;
+  bgColorInput.value = settings.bgColor;
+  fontScale.value = settings.scale;
+
+  applySettingsToUI();
+});
