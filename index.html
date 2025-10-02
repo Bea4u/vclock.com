@@ -1,66 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>vClock Clone</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>vClock Clone — Perfect</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Top Navigation -->
-  <header>
-    <div class="top-left">
-      <a href="#">Holidays</a>
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="left">
+      <a class="top-link" href="#">Holidays</a>
       <div class="dropdown">
-        <button class="dropbtn">Tools ▼</button>
+        <button class="dropbtn">Tools ▾</button>
         <div class="dropdown-content">
-          <a href="#">World Clock</a>
-          <a href="#">Pomodoro</a>
+          <a href="#" data-tool="world">World Clock</a>
+          <a href="#" data-tool="pomodoro">Pomodoro</a>
         </div>
       </div>
     </div>
-    <div class="top-right">
-      <button id="theme-toggle">🌙</button>
-      <button id="settings">⚙️</button>
+    <div class="right">
+      <button id="theme-toggle" title="Toggle theme">🌙</button>
+      <button id="settings-btn" title="Settings">⚙️</button>
     </div>
   </header>
 
   <!-- Sidebar -->
-  <aside>
-    <h2 class="logo">vClock</h2>
-    <nav>
-      <ul>
-        <li class="active">Alarm Clock</li>
-        <li>Timer</li>
-        <li>Stopwatch</li>
-        <li>Time</li>
-      </ul>
-    </nav>
-    <hr>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo">vClock</div>
+    </div>
 
-    <!-- PayPal Donate Section -->
-    <div class="donate-box">
-      <h3>Support Us</h3>
-      <a href="https://www.paypal.me/JoyNance576" target="_blank" class="donate-link">
-        Donate via PayPal
-      </a>
+    <nav class="nav">
+      <button class="nav-item active" data-view="alarm">⏰ Alarm Clock</button>
+      <button class="nav-item" data-view="timer">⏳ Timer</button>
+      <button class="nav-item" data-view="stopwatch">⏱ Stopwatch</button>
+      <button class="nav-item" data-view="time">🕘 Time</button>
+    </nav>
+
+    <hr/>
+
+    <div class="donate-card">
+      <div class="donate-title">Support Us</div>
+      <div class="donate-actions">
+        <a class="donate-link primary" href="https://www.paypal.me/JoyNance576/5" target="_blank" rel="noopener">Donate $5</a>
+        <a class="donate-link" href="https://www.paypal.me/JoyNance576" target="_blank" rel="noopener">Custom</a>
+      </div>
+      <div class="donate-note">Your support keeps this clock ticking ☕</div>
     </div>
   </aside>
 
-  <!-- Main Content -->
-  <main id="content">
-    <div id="clock"></div>
+  <!-- Main content -->
+  <main id="main">
+    <div id="clock-container">
+      <div id="clock" class="flip-clock" aria-live="polite" role="timer">
+        <!-- digits injected by JS -->
+      </div>
+      <div id="subline" class="subline">
+        <div id="timezone-label"></div>
+        <div id="format-label"></div>
+      </div>
+    </div>
+
+    <!-- Views container (alarm / timer / stopwatch / time) -->
+    <section id="views" class="views">
+      <!-- Alarm view -->
+      <div class="view" id="view-alarm" data-view="alarm">
+        <h3>Alarms</h3>
+        <div class="alarms-list" id="alarms-list"></div>
+        <div class="alarm-controls">
+          <input id="alarm-time" type="time" />
+          <input id="alarm-label" type="text" placeholder="Label (optional)" />
+          <button id="add-alarm">Add Alarm</button>
+        </div>
+      </div>
+
+      <!-- Timer view -->
+      <div class="view" id="view-timer" data-view="timer" hidden>
+        <h3>Timer</h3>
+        <div class="timer-display" id="timer-display">00:00:00</div>
+        <div class="timer-controls">
+          <input id="timer-min" type="number" min="0" placeholder="min" />
+          <input id="timer-sec" type="number" min="0" max="59" placeholder="sec" />
+          <button id="timer-start">Start</button>
+          <button id="timer-pause">Pause</button>
+          <button id="timer-reset">Reset</button>
+        </div>
+      </div>
+
+      <!-- Stopwatch view -->
+      <div class="view" id="view-stopwatch" data-view="stopwatch" hidden>
+        <h3>Stopwatch</h3>
+        <div class="stopwatch-display" id="stopwatch-display">00:00:00.0</div>
+        <div class="stopwatch-controls">
+          <button id="sw-start">Start</button>
+          <button id="sw-lap">Lap</button>
+          <button id="sw-stop">Stop</button>
+          <button id="sw-reset">Reset</button>
+        </div>
+        <div id="laps"></div>
+      </div>
+
+      <!-- Time view -->
+      <div class="view" id="view-time" data-view="time" hidden>
+        <h3>World Time</h3>
+        <div class="world-clocks" id="world-clocks">
+          <div class="wc-item">
+            <div class="wc-label">Local</div>
+            <div class="wc-time" data-zone="local" id="wc-local"></div>
+          </div>
+          <div class="wc-item">
+            <div class="wc-label">UTC</div>
+            <div class="wc-time" data-zone="utc" id="wc-utc"></div>
+          </div>
+          <div class="wc-item">
+            <div class="wc-label">New York (NY)</div>
+            <div class="wc-time" data-zone="America/New_York" id="wc-ny"></div>
+          </div>
+          <div class="wc-item">
+            <div class="wc-label">London</div>
+            <div class="wc-time" data-zone="Europe/London" id="wc-lon"></div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <!-- Floating Controls -->
+  <!-- Floating controls -->
   <div class="floating-controls">
-    <button id="share">🔗</button>
-    <button id="zoom-out">➖</button>
-    <button id="zoom-in">➕</button>
-    <button id="fullscreen">⛶</button>
+    <button id="share-btn" title="Share">🔗</button>
+    <button id="zoom-out" title="Zoom out">➖</button>
+    <button id="zoom-in" title="Zoom in">➕</button>
+    <button id="fullscreen" title="Fullscreen">⛶</button>
   </div>
 
-  <!-- Your Script -->
+  <!-- Settings modal -->
+  <div id="settings-modal" class="modal hidden" role="dialog" aria-hidden="true">
+    <div class="modal-inner">
+      <h3>Settings</h3>
+
+      <label>
+        <span>Time Format</span>
+        <select id="format-select">
+          <option value="24">24-hour</option>
+          <option value="12">12-hour (AM/PM)</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Show Seconds</span>
+        <input id="toggle-seconds" type="checkbox" />
+      </label>
+
+      <label>
+        <span>Clock Color</span>
+        <input id="clock-color" type="color" value="#00FF00" />
+      </label>
+
+      <label>
+        <span>Background</span>
+        <input id="bg-color" type="color" value="#000000" />
+      </label>
+
+      <label>
+        <span>Font Size (scale)</span>
+        <input id="font-scale" type="range" min="0.6" max="2.2" step="0.05" value="1.2" />
+      </label>
+
+      <div class="modal-actions">
+        <button id="save-settings">Save</button>
+        <button id="reset-settings">Reset</button>
+        <button id="close-settings">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="sr-only" aria-hidden="true">vClock Clone — demo</footer>
+
   <script src="script.js"></script>
 </body>
 </html>
