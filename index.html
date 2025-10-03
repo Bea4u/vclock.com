@@ -46,11 +46,13 @@
 
     <div class="donate-card">
       <div class="donate-title">Support Us</div>
+      <p class="donate-msg">This free tool runs on love. If you find it useful, buy me a coffee ☕</p>
       <div class="donate-actions">
-        <a class="donate-link primary" href="https://www.paypal.me/JoyNance576/5" target="_blank" rel="noopener">Donate $5</a>
-        <a class="donate-link" href="https://www.paypal.me/JoyNance576" target="_blank" rel="noopener">Custom</a>
+        <button class="donate-btn" data-link="https://www.paypal.me/JoyNance576/2">☕ Coffee — $2</button>
+        <button class="donate-btn" data-link="https://www.paypal.me/JoyNance576/5">🍩 Snack — $5</button>
+        <button class="donate-btn" data-link="https://www.paypal.me/JoyNance576/10">❤️ Support — $10</button>
       </div>
-      <div class="donate-note">Your support keeps this clock ticking ☕</div>
+      <div class="donate-note">Thank you — your support keeps this clock ticking ⏰</div>
     </div>
 
     <div class="footer-links" style="margin-top:14px; font-size:13px; color:rgba(255,255,255,0.7);">
@@ -71,9 +73,7 @@
       </div>
 
       <!-- How to Use (visible per view) -->
-      <div id="howto" class="howto">
-        <!-- content inserted by JS depending on view -->
-      </div>
+      <div id="howto" class="howto"></div>
     </div>
 
     <!-- Views container (Alarm / Timer / Stopwatch / Time) -->
@@ -109,12 +109,17 @@
 
         <div class="preset-times" style="margin-top:10px;">
           <strong>Presets:</strong>
-          <div style="display:flex;gap:8px;margin-top:8px;">
+          <div class="preset-grid">
             <button class="preset-timer" data-sec="300">5m</button>
             <button class="preset-timer" data-sec="600">10m</button>
             <button class="preset-timer" data-sec="900">15m</button>
             <button class="preset-timer" data-sec="1800">30m</button>
           </div>
+        </div>
+
+        <div class="recent-timers" style="margin-top:10px;">
+          <h4>Recently used timers</h4>
+          <ul id="recent-timers"></ul>
         </div>
       </div>
 
@@ -128,7 +133,7 @@
           <button id="sw-stop">Stop</button>
           <button id="sw-reset">Reset</button>
         </div>
-        <div id="laps"></div>
+        <div id="laps" class="laps"></div>
       </div>
 
       <!-- Time view -->
@@ -194,7 +199,7 @@
 
       <label>
         <span>Font Size (scale)</span>
-        <input id="font-scale" type="range" min="0.6" max="2.2" step="0.05" value="1.2" />
+        <input id="font-scale" type="range" min="0.6" max="2.0" step="0.05" value="1.2" />
       </label>
 
       <div class="modal-actions">
