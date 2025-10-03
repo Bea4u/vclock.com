@@ -62,20 +62,20 @@ const wcLon = $('#wc-lon');
 const howtoEl = $('#howto');
 
 const donateBtns = $$('.donate-btn');
+const alarmPresetGrid = $('#alarm-preset-grid');
 
-/* ---------- State & Defaults ---------- */
 let settings = {
   format: localStorage.getItem('vc_format') || '24',
   showSeconds: localStorage.getItem('vc_secs') === 'false' ? false : true,
-  clockColor: localStorage.getItem('vc_color') || '#00FF00',
+  clockColor: localStorage.getItem('vc_color') || '#FF8C00',
   bgColor: localStorage.getItem('vc_bg') || '#000000',
-  scale: parseFloat(localStorage.getItem('vc_scale')) || 1.2
+  scale: parseFloat(localStorage.getItem('vc_scale')) || 1.1
 };
 let zoomLevel = 1;
 
 /* ---------- WebAudio beep (self-contained) ---------- */
 const audioCtx = (typeof window.AudioContext !== 'undefined') ? new window.AudioContext() : null;
-function beep(duration = 600, frequency = 880, volume = 0.1, type='sine') {
+function beep(duration = 600, frequency = 880, volume = 0.12, type='sine') {
   if (!audioCtx) return;
   const o = audioCtx.createOscillator();
   const g = audioCtx.createGain();
@@ -85,9 +85,7 @@ function beep(duration = 600, frequency = 880, volume = 0.1, type='sine') {
   o.connect(g);
   g.connect(audioCtx.destination);
   o.start();
-  setTimeout(()=> {
-    o.stop();
-  }, duration);
+  setTimeout(()=> { o.stop(); }, duration);
 }
 
 /* ---------- Clock Rendering ---------- */
@@ -158,6 +156,45 @@ buildClockDigits(settings.showSeconds);
 setInterval(updateClockAnimation, 1000);
 updateClockAnimation();
 
+/* ---------- Build alarm preset grid (4:00 to 2:00 with 15/30 increments) ---------- */
+function buildAlarmPresetGrid() {
+  const times = [];
+  // Generate times from 4:00 AM to 2:00 PM as vClock commonly shows (4:00..14:00)
+  for (let h = 4; h <= 14; h++) {
+    for (let m of [0,15,30,45]) {
+      // Only push some (optional) — we'll push common picks (0 and 30)
+      if (m === 0 || m === 30) {
+        const hh = String(((h % 24))).padStart(2,'0');
+        const mm = String(m).padStart(2,'0');
+        times.push(`${hh}:${mm}`);
+      }
+    }
+  }
+  // ensure unique & create buttons
+  alarmPresetGrid.innerHTML = '';
+  times.forEach(t => {
+    const d = new Date();
+    const [hh, mm] = t.split(':');
+    const label = formatDisplayTime(parseInt(hh,10), parseInt(mm,10));
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    btn.dataset.time = `${hh}:${mm}`;
+    btn.addEventListener('click', ()=> {
+      // set alarm input and add alarm immediately (match vClock quick pick)
+      alarmTimeInput.value = btn.dataset.time;
+      addAlarmImmediate();
+    });
+    alarmPresetGrid.appendChild(btn);
+  });
+}
+function formatDisplayTime(h, m) {
+  if (settings.format === '24') return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  const am = h < 12;
+  let hh = h % 12; if (hh === 0) hh = 12;
+  return `${hh}:${String(m).padStart(2,'0')} ${am ? 'AM' : 'PM'}`;
+}
+buildAlarmPresetGrid();
+
 /* ---------- UI: nav switch ---------- */
 navItems.forEach(btn => {
   btn.addEventListener('click', () => {
@@ -172,14 +209,13 @@ navItems.forEach(btn => {
 /* ---------- How to Use content ---------- */
 const HOWTO = {
   alarm: `<h4>How to use the Alarm Clock</h4>
-  <p>Pick a time and optionally add a label. Keep this tab open for the alarm to fire. Use 'Test' to preview the sound.</p>
-  <p>Recent alarms are saved for quick reuse.</p>`,
+  <p>Pick a time using quick picks or the time input. Add a label if desired. Keep this tab open for the alarm to fire. Click "Test" to preview sound.</p>`,
 
   timer: `<h4>How to use the Timer</h4>
-  <p>Set minutes and seconds (or use presets) and press Start. The timer will alert when complete.</p>`,
+  <p>Set minutes and seconds (or use presets) and press Start. Timer will alert when complete.</p>`,
 
   stopwatch: `<h4>How to use the Stopwatch</h4>
-  <p>Start, record laps, pause, and reset. Laps are session-only.</p>`,
+  <p>Start the stopwatch, record laps, pause and reset. Laps are stored in the session.</p>`,
 
   time: `<h4>How to use World Time</h4>
   <p>Compare local, UTC and other zones quickly.</p>`
@@ -222,7 +258,7 @@ saveSettings && saveSettings.addEventListener('click', () => {
   settingsModal.classList.add('hidden');
 });
 resetSettings && resetSettings.addEventListener('click', ()=> {
-  settings = { format:'24', showSeconds:true, clockColor:'#00FF00', bgColor:'#000000', scale:1.2 };
+  settings = { format:'24', showSeconds:true, clockColor:'#FF8C00', bgColor:'#000000', scale:1.1 };
   localStorage.removeItem('vc_format');
   localStorage.removeItem('vc_secs');
   localStorage.removeItem('vc_color');
@@ -245,7 +281,7 @@ themeToggle.addEventListener('click', ()=> {
 
 /* ---------- Zoom controls ---------- */
 zoomInBtn.addEventListener('click', ()=> {
-  zoomLevel = Math.min(2.4, zoomLevel + 0.1);
+  zoomLevel = Math.min(2.2, zoomLevel + 0.1);
   containerEl.style.transform = `scale(${zoomLevel * settings.scale})`;
 });
 zoomOutBtn.addEventListener('click', ()=> {
@@ -298,7 +334,7 @@ function saveRecentAlarm(time, label) {
   const entry = { time, label, at: Date.now() };
   if (!recentAlarms.length || recentAlarms[0].time !== time || recentAlarms[0].label !== label) {
     recentAlarms.unshift(entry);
-    if (recentAlarms.length > 8) recentAlarms.pop();
+    if (recentAlarms.length > 12) recentAlarms.pop();
     localStorage.setItem('vc_recent_alarms', JSON.stringify(recentAlarms));
   }
   renderRecentAlarms();
@@ -313,7 +349,8 @@ function renderRecentAlarms(){
   }
   recentAlarms.forEach(r => {
     const li = document.createElement('li');
-    li.innerHTML = `<button class="recent-reuse" data-time="${r.time}" data-label="${(r.label||'')}">${r.time} ${r.label ? '- '+r.label : ''}</button>`;
+    const pretty = formatDisplayTime(parseInt(r.time.split(':')[0],10), parseInt(r.time.split(':')[1],10));
+    li.innerHTML = `<button class="recent-reuse" data-time="${r.time}" data-label="${(r.label||'')}">${pretty} ${r.label ? '- '+r.label : ''}</button>`;
     recentAlarmsEl.appendChild(li);
   });
   $$('.recent-reuse').forEach(b => b.addEventListener('click', e => {
@@ -333,7 +370,7 @@ function renderAlarms(){
   alarms.forEach((a, idx) => {
     const item = document.createElement('div');
     item.className = 'alarm-item';
-    item.innerHTML = `<div><strong>${a.time}</strong> ${a.label?('- '+a.label):''}</div>
+    item.innerHTML = `<div><strong>${formatDisplayTime(parseInt(a.time.split(':')[0],10), parseInt(a.time.split(':')[1],10))}</strong> ${a.label?('- '+a.label):''}</div>
       <div style="display:flex;gap:8px;align-items:center">
         <button data-idx="${idx}" class="alarm-toggle">${a.enabled? 'On':'Off'}</button>
         <button data-del="${idx}" class="alarm-delete">✖</button>
@@ -356,7 +393,7 @@ function renderAlarms(){
 renderAlarms();
 renderRecentAlarms();
 
-addAlarmBtn.addEventListener('click', ()=> {
+function addAlarmImmediate() {
   const t = alarmTimeInput.value;
   if (!t) { alert('Choose a time'); return; }
   const label = alarmLabelInput.value.trim();
@@ -365,12 +402,12 @@ addAlarmBtn.addEventListener('click', ()=> {
   saveRecentAlarm(t, label);
   alarmTimeInput.value=''; alarmLabelInput.value='';
   renderAlarms();
-});
+}
+addAlarmBtn.addEventListener('click', addAlarmImmediate);
 
 testAlarmBtn && testAlarmBtn.addEventListener('click', ()=> {
-  // quick test beep sequence
-  beep(300, 880, 0.12); setTimeout(()=>beep(300,660,0.12),350);
-  setTimeout(()=>alert('Test alarm played (preview).'), 100);
+  beep(250,880,0.12); setTimeout(()=>beep(220,660,0.12),300); setTimeout(()=>beep(180,440,0.12),620);
+  setTimeout(()=>alert('Test alarm played (preview).'), 80);
 });
 
 /* check alarms every 1 second */
@@ -380,9 +417,7 @@ setInterval(()=> {
   alarms.forEach((a, i) => {
     if (a.enabled && a.time === cur) {
       alert(`Alarm: ${a.label || a.time}`);
-      // play a few beeps
       beep(350, 880, 0.12); setTimeout(()=>beep(350,880,0.12),420); setTimeout(()=>beep(350,660,0.12),900);
-      // disable for the minute to avoid repeats, re-enable later
       a.enabled = false;
       localStorage.setItem('vc_alarms', JSON.stringify(alarms));
       renderAlarms();
@@ -444,7 +479,7 @@ function saveRecentTimer(sec, label) {
   const entry = { sec, label, at: Date.now() };
   if (!recentTimers.length || recentTimers[0].sec !== sec) {
     recentTimers.unshift(entry);
-    if (recentTimers.length > 8) recentTimers.pop();
+    if (recentTimers.length > 12) recentTimers.pop();
     localStorage.setItem('vc_recent_timers', JSON.stringify(recentTimers));
   }
   renderRecentTimers();
@@ -529,7 +564,6 @@ donateBtns.forEach(b => {
   b.addEventListener('click', (e) => {
     const link = e.currentTarget.dataset.link;
     window.open(link, '_blank', 'noopener');
-    // small thank you toast/alert after a short delay
     setTimeout(()=> {
       alert('🙏 Thank you for your support! You keep this clock alive ⏰');
     }, 900);
