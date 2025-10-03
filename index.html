@@ -1,106 +1,194 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>vClock Clone</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>vClock Clone — Perfect</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Top Navigation -->
-  <header>
-    <div class="top-left">
-      <a href="#">Holidays</a>
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="left">
+      <a class="top-link" href="#">Holidays</a>
       <div class="dropdown">
-        <button class="dropbtn">Tools ▼</button>
+        <button class="dropbtn">Tools ▾</button>
         <div class="dropdown-content">
-          <a href="#">World Clock</a>
-          <a href="#">Pomodoro</a>
+          <a href="#" data-tool="world">World Clock</a>
+          <a href="#" data-tool="pomodoro">Pomodoro</a>
         </div>
       </div>
     </div>
-    <div class="top-right">
-      <button id="theme-toggle">🌙</button>
-      <button id="settings">⚙️</button>
+    <div class="right">
+      <button id="theme-toggle" title="Toggle theme">🌙</button>
+      <button id="settings-btn" title="Settings">⚙️</button>
     </div>
   </header>
 
   <!-- Sidebar -->
-  <aside>
-    <h2 class="logo">vClock</h2>
-    <nav>
-      <ul>
-        <li class="active" data-section="alarm">Alarm Clock</li>
-        <li data-section="timer">Timer</li>
-        <li data-section="stopwatch">Stopwatch</li>
-        <li data-section="time">Time</li>
-      </ul>
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">vClock</div></div>
+    <nav class="nav">
+      <button class="nav-item active" data-view="alarm">⏰ Alarm Clock</button>
+      <button class="nav-item" data-view="timer">⏳ Timer</button>
+      <button class="nav-item" data-view="stopwatch">⏱ Stopwatch</button>
+      <button class="nav-item" data-view="time">🕘 Time</button>
     </nav>
-    <hr>
+    <hr/>
+    <div class="sidebar-foot">© vClock Clone</div>
   </aside>
 
-  <!-- Main Content -->
-  <main id="content">
-    <div id="clock"></div>
-    <!-- Donate box moved below clock (like vClock.com) -->
-    <div class="donate-box">
-      <h3>Support Us</h3>
-      <div id="paypal-button-container"></div>
+  <!-- Main area -->
+  <main id="main">
+    <!-- left / center column -->
+    <div id="main-column">
+      <div id="clock-container">
+        <div id="clock" class="flip-clock" aria-live="polite" role="timer"></div>
+        <div id="subline" class="subline"></div>
+      </div>
+
+      <!-- Middle panels -->
+      <section id="middle-panels">
+
+        <!-- alarm presets -->
+        <div class="panel alarm-presets" id="alarm-presets-panel">
+          <h4>Set the alarm for the specified time</h4>
+          <div class="alarm-grid" id="alarm-preset-grid"></div>
+        </div>
+
+        <!-- Donate card (main column, below clock/presets) -->
+        <div class="panel donate-main" id="donate-main">
+          <div class="donate-title">Support Us</div>
+          <div class="donate-msg">This free tool runs on love. If you find it useful, buy me a coffee ☕</div>
+          <div class="donate-actions">
+            <button class="donate-btn" data-link="https://www.paypal.me/JoyNance576/2">☕ Coffee — $2</button>
+            <button class="donate-btn" data-link="https://www.paypal.me/JoyNance576/5">🍩 Snack — $5</button>
+            <button class="donate-btn" data-link="https://www.paypal.me/JoyNance576/10">❤️ Support — $10</button>
+            <a class="donate-link-small" href="https://www.paypal.me/JoyNance576" target="_blank" rel="noopener">Other / Custom</a>
+          </div>
+        </div>
+
+        <!-- Recently used / how-to long -->
+        <div class="panel recent-panel" id="recent-panel">
+          <div class="recent-columns">
+            <div>
+              <h5>Recent Alarms</h5>
+              <ul id="recent-alarms" class="recent-list"></ul>
+            </div>
+            <div>
+              <h5>Recent Timers</h5>
+              <ul id="recent-timers" class="recent-list"></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel howto-panel" id="howto-panel">
+          <h4>How to use</h4>
+          <div id="howto" class="howto-short"></div>
+        </div>
+
+      </section>
     </div>
+
+    <!-- right column: tools (alarm/timer/stopwatch/time) -->
+    <aside id="right-panel">
+      <section id="views" class="views">
+
+        <!-- Alarm view -->
+        <div class="view" id="view-alarm" data-view="alarm">
+          <h3>Alarms</h3>
+          <div class="alarms-list" id="alarms-list"></div>
+          <div class="alarm-controls">
+            <input id="alarm-time" type="time" />
+            <input id="alarm-label" type="text" placeholder="Label (optional)" />
+            <button id="add-alarm">Set Alarm</button>
+            <button id="test-alarm">Test</button>
+          </div>
+        </div>
+
+        <!-- Timer view -->
+        <div class="view" id="view-timer" data-view="timer" hidden>
+          <h3>Timer</h3>
+          <div class="timer-display" id="timer-display">00:00:00</div>
+          <div class="timer-controls">
+            <input id="timer-min" type="number" min="0" placeholder="min" />
+            <input id="timer-sec" type="number" min="0" max="59" placeholder="sec" />
+            <button id="timer-start">Start</button>
+            <button id="timer-pause">Pause</button>
+            <button id="timer-reset">Reset</button>
+          </div>
+          <div class="preset-grid">
+            <button class="preset-timer" data-sec="300">5m</button>
+            <button class="preset-timer" data-sec="600">10m</button>
+            <button class="preset-timer" data-sec="900">15m</button>
+            <button class="preset-timer" data-sec="1800">30m</button>
+          </div>
+        </div>
+
+        <!-- Stopwatch view -->
+        <div class="view" id="view-stopwatch" data-view="stopwatch" hidden>
+          <h3>Stopwatch</h3>
+          <div class="stopwatch-display" id="stopwatch-display">00:00:00.0</div>
+          <div class="stopwatch-controls">
+            <button id="sw-start">Start</button>
+            <button id="sw-lap">Lap</button>
+            <button id="sw-stop">Stop</button>
+            <button id="sw-reset">Reset</button>
+          </div>
+          <div id="laps" class="laps"></div>
+        </div>
+
+        <!-- Time view -->
+        <div class="view" id="view-time" data-view="time" hidden>
+          <h3>World Time</h3>
+          <div class="world-clocks" id="world-clocks">
+            <div class="wc-item"><div class="wc-label">Local</div><div class="wc-time" id="wc-local"></div></div>
+            <div class="wc-item"><div class="wc-label">UTC</div><div class="wc-time" id="wc-utc"></div></div>
+            <div class="wc-item"><div class="wc-label">New York</div><div class="wc-time" id="wc-ny"></div></div>
+            <div class="wc-item"><div class="wc-label">London</div><div class="wc-time" id="wc-lon"></div></div>
+          </div>
+        </div>
+
+      </section>
+    </aside>
   </main>
 
-  <!-- Floating Controls -->
+  <!-- Floating controls -->
   <div class="floating-controls">
-    <button id="share">🔗</button>
-    <button id="zoom-out">➖</button>
-    <button id="zoom-in">➕</button>
-    <button id="fullscreen">⛶</button>
+    <button id="share-btn" title="Share">🔗</button>
+    <button id="zoom-out" title="Zoom out">➖</button>
+    <button id="zoom-in" title="Zoom in">➕</button>
+    <button id="fullscreen" title="Fullscreen">⛶</button>
   </div>
 
-  <!-- How to Use Section -->
-  <section id="how-to">
-    <h2>How to use the online alarm clock</h2>
-    <p>Set the alarm time, choose a sound, and press <strong>Set Alarm</strong>. Leave the browser window open to ensure the alarm rings at the right time.</p>
-  </section>
+  <!-- Settings modal -->
+  <div id="settings-modal" class="modal hidden" role="dialog" aria-hidden="true">
+    <div class="modal-inner">
+      <h3>Settings</h3>
+      <label><span>Time Format</span>
+        <select id="format-select"><option value="24">24-hour</option><option value="12">12-hour</option></select>
+      </label>
+      <label><span>Show Seconds</span><input id="toggle-seconds" type="checkbox" /></label>
+      <label><span>Clock Color</span><input id="clock-color" type="color" value="#FF8C00" /></label>
+      <label><span>Background</span><input id="bg-color" type="color" value="#000000" /></label>
+      <label><span>Font Scale</span><input id="font-scale" type="range" min="0.6" max="2.0" step="0.05" value="1.1" /></label>
+      <div class="modal-actions">
+        <button id="save-settings">Save</button>
+        <button id="reset-settings">Reset</button>
+        <button id="close-settings">Close</button>
+      </div>
+    </div>
+  </div>
 
-  <!-- Footer -->
-  <footer>
-    <p>
-      <a href="#">Contacts</a> | 
-      <a href="#">Terms of use</a> | 
-      <a href="#">Privacy</a> | 
-      © 2025 vClock.com
-    </p>
+  <footer class="page-footer">
+    <div class="footer-inner">
+      <div>© 2025 vClock Clone</div>
+      <div>Contacts | Terms of use | Privacy</div>
+    </div>
   </footer>
-
-  <!-- PayPal SDK -->
-  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD"></script>
-
-  <!-- PayPal Button Script -->
-  <script>
-    paypal.Buttons({
-      style: {
-        color: 'gold',
-        shape: 'pill',
-        label: 'pay',
-        height: 40
-      },
-      createOrder: function(data, actions) {
-        return actions.order.create({
-          purchase_units: [{
-            amount: { 
-              value: '5.00'
-            }
-          }]
-        });
-      },
-      onApprove: function(data, actions) {
-        return actions.order.capture().then(function(details) {
-          alert('Thank you, ' + details.payer.name.given_name + '! Payment completed.');
-        });
-      }
-    }).render('#paypal-button-container');
-  </script>
 
   <script src="script.js"></script>
 </body>
