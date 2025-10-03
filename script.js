@@ -45,6 +45,7 @@ const timerPause = $('#timer-pause');
 const timerReset = $('#timer-reset');
 
 const presetTimerBtns = $$('.preset-timer');
+const recentTimersEl = $('#recent-timers');
 
 const swDisplay = $('#stopwatch-display');
 const swStart = $('#sw-start');
@@ -60,6 +61,8 @@ const wcLon = $('#wc-lon');
 
 const howtoEl = $('#howto');
 
+const donateBtns = $$('.donate-btn');
+
 /* ---------- State & Defaults ---------- */
 let settings = {
   format: localStorage.getItem('vc_format') || '24',
@@ -69,6 +72,23 @@ let settings = {
   scale: parseFloat(localStorage.getItem('vc_scale')) || 1.2
 };
 let zoomLevel = 1;
+
+/* ---------- WebAudio beep (self-contained) ---------- */
+const audioCtx = (typeof window.AudioContext !== 'undefined') ? new window.AudioContext() : null;
+function beep(duration = 600, frequency = 880, volume = 0.1, type='sine') {
+  if (!audioCtx) return;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type;
+  o.frequency.value = frequency;
+  g.gain.value = volume;
+  o.connect(g);
+  g.connect(audioCtx.destination);
+  o.start();
+  setTimeout(()=> {
+    o.stop();
+  }, duration);
+}
 
 /* ---------- Clock Rendering ---------- */
 function buildClockDigits(showSeconds = settings.showSeconds) {
@@ -80,13 +100,13 @@ function buildClockDigits(showSeconds = settings.showSeconds) {
 
   const timeStr = hh + mm + (showSeconds ? ss : '');
 
-  for (let i=0; i < timeStr.length; i++) {
+  for (let i=0;i<timeStr.length;i++){
     const ch = timeStr[i];
     const digit = document.createElement('div');
     digit.className = 'flip-digit';
     digit.textContent = ch;
     clockEl.appendChild(digit);
-    // insert separator after HH and after MM (if seconds)
+
     if (i === 1 || (showSeconds && i === 3)) {
       const sep = document.createElement('div');
       sep.className = 'flip-sep';
@@ -104,7 +124,6 @@ function updateClockAnimation() {
   const timeStr = hh + mm + (showSeconds ? ss : '');
   const digits = Array.from(clockEl.querySelectorAll('.flip-digit'));
 
-  // If structure length mismatched (e.g., toggled seconds), rebuild
   if (digits.length !== timeStr.length) {
     buildClockDigits(showSeconds);
     return;
@@ -116,7 +135,6 @@ function updateClockAnimation() {
     if (child.classList.contains('flip-digit')) {
       const newChar = timeStr[idx];
       if (child.textContent !== newChar) {
-        // flip animation
         child.style.transform = 'rotateX(180deg)';
         setTimeout(()=> {
           child.textContent = newChar;
@@ -127,25 +145,15 @@ function updateClockAnimation() {
     }
   }
 
-  // update sub labels
-  try {
-    tzLabel.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  } catch(e) {
-    tzLabel.textContent = '';
-  }
+  try { tzLabel.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch(e){ tzLabel.textContent = ''; }
   fmtLabel.textContent = `${settings.format}h ${showSeconds ? 'with' : 'no'} seconds`;
 }
-
-/* format helper */
 function formatHour(h, fmt) {
   if (fmt === '24') return String(h).padStart(2,'0');
-  // 12-hour
-  let hh = h % 12;
-  if (hh === 0) hh = 12;
+  let hh = h % 12; if (hh === 0) hh = 12;
   return String(hh).padStart(2,'0');
 }
 
-/* start loop */
 buildClockDigits(settings.showSeconds);
 setInterval(updateClockAnimation, 1000);
 updateClockAnimation();
@@ -164,22 +172,19 @@ navItems.forEach(btn => {
 /* ---------- How to Use content ---------- */
 const HOWTO = {
   alarm: `<h4>How to use the Alarm Clock</h4>
-  <p>Pick a time and optionally add a label. The alarm will trigger a browser alert and can play a sound if you enable it (playback depends on your browser's autoplay settings). Keep this tab open for the alarm to fire.</p>
-  <p>Use the "Test" button to preview the alarm sound and volume. Recent alarms are saved for quick reuse.</p>`,
+  <p>Pick a time and optionally add a label. Keep this tab open for the alarm to fire. Use 'Test' to preview the sound.</p>
+  <p>Recent alarms are saved for quick reuse.</p>`,
 
   timer: `<h4>How to use the Timer</h4>
-  <p>Set minutes and seconds (or use presets) and press Start. You can pause or reset the timer. Timer works while the tab is open.</p>`,
+  <p>Set minutes and seconds (or use presets) and press Start. The timer will alert when complete.</p>`,
 
   stopwatch: `<h4>How to use the Stopwatch</h4>
-  <p>Start the stopwatch, record laps, pause, and reset. Laps are saved only during the session.</p>`,
+  <p>Start, record laps, pause, and reset. Laps are session-only.</p>`,
 
   time: `<h4>How to use World Time</h4>
-  <p>View local time, UTC and sample world clocks. Use this to compare zones quickly.</p>`
+  <p>Compare local, UTC and other zones quickly.</p>`
 };
-
-function showHowToFor(view) {
-  howtoEl.innerHTML = HOWTO[view] || '';
-}
+function showHowToFor(view) { howtoEl.innerHTML = HOWTO[view] || ''; }
 showHowToFor('alarm');
 
 /* ---------- Theme & Settings ---------- */
@@ -199,14 +204,9 @@ function shadeColor(hex, percent) {
   const newR = Math.round((t-R)*p)+R, newG = Math.round((t-G)*p)+G, newB = Math.round((t-B)*p)+B;
   return `rgb(${newR}, ${newG}, ${newB})`;
 }
-
-/* settings open/close */
-settingsBtn.addEventListener('click', ()=> {
-  settingsModal.classList.toggle('hidden');
-});
+settingsBtn.addEventListener('click', ()=> settingsModal.classList.toggle('hidden'));
 $('#close-settings') && $('#close-settings').addEventListener('click', ()=> settingsModal.classList.add('hidden'));
 
-/* save settings */
 saveSettings && saveSettings.addEventListener('click', () => {
   settings.format = formatSelect.value;
   settings.showSeconds = toggleSeconds.checked;
@@ -221,8 +221,6 @@ saveSettings && saveSettings.addEventListener('click', () => {
   applySettingsToUI();
   settingsModal.classList.add('hidden');
 });
-
-/* reset */
 resetSettings && resetSettings.addEventListener('click', ()=> {
   settings = { format:'24', showSeconds:true, clockColor:'#00FF00', bgColor:'#000000', scale:1.2 };
   localStorage.removeItem('vc_format');
@@ -232,8 +230,6 @@ resetSettings && resetSettings.addEventListener('click', ()=> {
   localStorage.removeItem('vc_scale');
   applySettingsToUI();
 });
-
-/* initial apply */
 applySettingsToUI();
 
 /* ---------- Theme toggle (light/dark) ---------- */
@@ -300,7 +296,6 @@ let recentAlarms = JSON.parse(localStorage.getItem('vc_recent_alarms') || '[]');
 
 function saveRecentAlarm(time, label) {
   const entry = { time, label, at: Date.now() };
-  // dedupe identical last item
   if (!recentAlarms.length || recentAlarms[0].time !== time || recentAlarms[0].label !== label) {
     recentAlarms.unshift(entry);
     if (recentAlarms.length > 8) recentAlarms.pop();
@@ -345,7 +340,6 @@ function renderAlarms(){
       </div>`;
     alarmsListEl.appendChild(item);
   });
-  // wire events
   $$('.alarm-delete').forEach(b => b.addEventListener('click', e => {
     const i = parseInt(e.target.dataset.del,10);
     alarms.splice(i,1);
@@ -374,23 +368,25 @@ addAlarmBtn.addEventListener('click', ()=> {
 });
 
 testAlarmBtn && testAlarmBtn.addEventListener('click', ()=> {
-  alert('Test alarm: This is how the alarm will sound.');
-  // if you'd like: play a beep here (note: browsers may block autoplay)
+  // quick test beep sequence
+  beep(300, 880, 0.12); setTimeout(()=>beep(300,660,0.12),350);
+  setTimeout(()=>alert('Test alarm played (preview).'), 100);
 });
 
 /* check alarms every 1 second */
 setInterval(()=> {
   const now = new Date();
   const cur = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  alarms.forEach(a => {
+  alarms.forEach((a, i) => {
     if (a.enabled && a.time === cur) {
-      // simple throttle: mark fired by toggling enabled off for 1 minute to avoid repeats
       alert(`Alarm: ${a.label || a.time}`);
-      // Optionally play sound here
+      // play a few beeps
+      beep(350, 880, 0.12); setTimeout(()=>beep(350,880,0.12),420); setTimeout(()=>beep(350,660,0.12),900);
+      // disable for the minute to avoid repeats, re-enable later
       a.enabled = false;
-      setTimeout(()=>{ a.enabled = true; localStorage.setItem('vc_alarms', JSON.stringify(alarms)); }, 60000);
       localStorage.setItem('vc_alarms', JSON.stringify(alarms));
       renderAlarms();
+      setTimeout(()=>{ a.enabled = true; localStorage.setItem('vc_alarms', JSON.stringify(alarms)); renderAlarms(); }, 61000);
     }
   });
 },1000);
@@ -409,13 +405,17 @@ timerStart.addEventListener('click', ()=> {
   timerRemaining = m*60 + s;
   if (!timerRemaining) return alert('Set minutes or seconds');
   timerDisplay.textContent = formatHMS(timerRemaining);
+  const recent = `${m}m ${s}s`.trim();
+  saveRecentTimer(timerRemaining, recent);
   if (timerInterval) clearInterval(timerInterval);
   timerInterval = setInterval(()=> {
     timerRemaining--;
     timerDisplay.textContent = formatHMS(timerRemaining);
     if (timerRemaining<=0) {
       clearInterval(timerInterval);
+      timerInterval = null;
       alert('Timer finished');
+      beep(400,880,0.12); setTimeout(()=>beep(350,660,0.12),420); setTimeout(()=>beep(300,440,0.12),820);
     }
   },1000);
 });
@@ -438,6 +438,36 @@ presetTimerBtns.forEach(btn => {
   });
 });
 
+/* recent timers */
+let recentTimers = JSON.parse(localStorage.getItem('vc_recent_timers') || '[]');
+function saveRecentTimer(sec, label) {
+  const entry = { sec, label, at: Date.now() };
+  if (!recentTimers.length || recentTimers[0].sec !== sec) {
+    recentTimers.unshift(entry);
+    if (recentTimers.length > 8) recentTimers.pop();
+    localStorage.setItem('vc_recent_timers', JSON.stringify(recentTimers));
+  }
+  renderRecentTimers();
+}
+function renderRecentTimers() {
+  recentTimers = JSON.parse(localStorage.getItem('vc_recent_timers') || '[]');
+  recentTimersEl.innerHTML = '';
+  if (!recentTimers.length) {
+    recentTimersEl.innerHTML = '<li style="color:var(--muted)">No recent timers</li>'; return;
+  }
+  recentTimers.forEach(r=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<button class="recent-timer" data-sec="${r.sec}">${r.label}</button>`;
+    recentTimersEl.appendChild(li);
+  });
+  $$('.recent-timer').forEach(b => b.addEventListener('click', e=>{
+    const sec = parseInt(e.currentTarget.dataset.sec,10);
+    timerMin.value = Math.floor(sec/60);
+    timerSec.value = sec % 60;
+  }));
+}
+renderRecentTimers();
+
 /* ---------- Stopwatch ---------- */
 let swStartTs = 0, swElapsed = 0, swTimer = null, lapCount=0;
 swStart.addEventListener('click', ()=> {
@@ -445,17 +475,17 @@ swStart.addEventListener('click', ()=> {
     swStartTs = Date.now();
     swTimer = setInterval(()=> {
       const now = Date.now();
-      const t = swElapsed + Math.floor((now - swStartTs)/100);
-      const secs = Math.floor(t/10)/10;
-      const hh = Math.floor(secs/3600), mm = Math.floor((secs%3600)/60), ss = (secs%60).toFixed(1);
-      swDisplay.textContent = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(4,'0')}`;
+      const t = swElapsed + (now - swStartTs);
+      const totalSec = t/1000;
+      const hh = Math.floor(totalSec/3600), mm = Math.floor((totalSec%3600)/60);
+      const ss = (totalSec%60).toFixed(1);
+      swDisplay.textContent = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${ss.padStart(4,'0')}`;
     },100);
     swStart.textContent = 'Pause';
   } else {
-    // pause
     clearInterval(swTimer);
     swTimer = null;
-    swElapsed += Math.floor((Date.now() - swStartTs)/100);
+    swElapsed += (Date.now() - swStartTs);
     swStart.textContent = 'Resume';
   }
 });
@@ -483,16 +513,27 @@ swReset.addEventListener('click', ()=> {
 containerEl.style.transform = `scale(${settings.scale})`;
 
 window.addEventListener('DOMContentLoaded', ()=> {
-  // load settings into controls
   formatSelect.value = settings.format;
   toggleSeconds.checked = settings.showSeconds;
   clockColorInput.value = settings.clockColor;
   bgColorInput.value = settings.bgColor;
   fontScale.value = settings.scale;
-
   applySettingsToUI();
   renderAlarms();
   renderRecentAlarms();
+  renderRecentTimers();
+});
+
+/* ---------- Donate buttons behavior ---------- */
+donateBtns.forEach(b => {
+  b.addEventListener('click', (e) => {
+    const link = e.currentTarget.dataset.link;
+    window.open(link, '_blank', 'noopener');
+    // small thank you toast/alert after a short delay
+    setTimeout(()=> {
+      alert('🙏 Thank you for your support! You keep this clock alive ⏰');
+    }, 900);
+  });
 });
 
 /* ---------- Helpers: show how-to for initial active nav ---------- */
