@@ -3,50 +3,96 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>vClock Clone</title>
+  <title>Online Alarm Clock - vClock Clone</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Top Navigation -->
-  <header>
-    <div class="top-left">
-      <a href="#">Holidays</a>
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="left">
+      <a href="holidays.html">Holidays</a>
       <div class="dropdown">
         <button class="dropbtn">Tools ▼</button>
         <div class="dropdown-content">
-          <a href="#">World Clock</a>
+          <a href="time.html">World Clock</a>
           <a href="#">Pomodoro</a>
         </div>
       </div>
     </div>
-    <div class="top-right">
+    <div class="right">
       <button id="theme-toggle">🌙</button>
-      <button id="settings">⚙️</button>
+      <button id="settings-btn">⚙️</button>
     </div>
   </header>
 
   <!-- Sidebar -->
-  <aside>
-    <h2 class="logo">vClock</h2>
-    <nav>
-      <ul>
-        <li class="active" data-section="alarm">Alarm Clock</li>
-        <li data-section="timer">Timer</li>
-        <li data-section="stopwatch">Stopwatch</li>
-        <li data-section="time">Time</li>
-      </ul>
+  <aside class="sidebar">
+    <div class="brand">vClock</div>
+    <nav class="nav">
+      <a href="index.html" class="nav-item active">Alarm Clock</a>
+      <a href="timer.html" class="nav-item">Timer</a>
+      <a href="stopwatch.html" class="nav-item">Stopwatch</a>
+      <a href="time.html" class="nav-item">Time</a>
     </nav>
-    <hr>
+    <div class="sidebar-foot">© vClock Clone</div>
   </aside>
 
-  <!-- Main Content -->
-  <main id="content">
-    <div id="clock"></div>
-    <!-- Donate box moved below clock (like vClock.com) -->
-    <div class="donate-box">
-      <h3>Support Us</h3>
-      <div id="paypal-button-container"></div>
+  <!-- Main -->
+  <main id="main">
+    <div id="main-column">
+      <div id="clock-container">
+        <div id="clock-flat">00:00:00</div>
+        <div class="subline">Friday, Oct 3</div>
+      </div>
+
+      <section class="panel">
+        <h3>Quick Alarms</h3>
+        <div class="alarm-grid">
+          <button data-time="04:00">04:00</button>
+          <button data-time="04:30">04:30</button>
+          <button data-time="05:00">05:00</button>
+          <button data-time="05:30">05:30</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Recent Alarms</h3>
+        <div class="recent-columns">
+          <ul class="recent-list" id="recent-alarms"></ul>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>How to use</h3>
+        <p class="howto-short">
+          Click a preset time above to set an alarm instantly, or use the right panel to create your own alarm. 
+          The alarm will ring in your browser when the time comes.
+        </p>
+      </section>
     </div>
+
+    <!-- Right Panel -->
+    <aside id="right-panel">
+      <section class="panel">
+        <h3>Set Alarm</h3>
+        <div class="alarms-list" id="alarms-list"></div>
+        <div class="alarm-controls">
+          <input type="time" id="alarm-time">
+          <button id="set-alarm">Set Alarm</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Support Us</h3>
+        <div class="donate-msg">If you like this tool, consider supporting us ❤️</div>
+        <div class="donate-actions">
+          <button class="donate-btn">$3 Coffee</button>
+          <button class="donate-btn">$5 Snack</button>
+          <button class="donate-btn">$10 Meal</button>
+          <a href="https://www.paypal.me/JoyNance576" target="_blank" class="donate-link-small">Custom</a>
+        </div>
+      </section>
+    </aside>
   </main>
 
   <!-- Floating Controls -->
@@ -57,50 +103,10 @@
     <button id="fullscreen">⛶</button>
   </div>
 
-  <!-- How to Use Section -->
-  <section id="how-to">
-    <h2>How to use the online alarm clock</h2>
-    <p>Set the alarm time, choose a sound, and press <strong>Set Alarm</strong>. Leave the browser window open to ensure the alarm rings at the right time.</p>
-  </section>
-
   <!-- Footer -->
-  <footer>
-    <p>
-      <a href="#">Contacts</a> | 
-      <a href="#">Terms of use</a> | 
-      <a href="#">Privacy</a> | 
-      © 2025 vClock.com
-    </p>
+  <footer class="page-footer">
+    <a href="#">Contacts</a> • <a href="#">Terms</a> • <a href="#">Privacy</a>
   </footer>
-
-  <!-- PayPal SDK -->
-  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD"></script>
-
-  <!-- PayPal Button Script -->
-  <script>
-    paypal.Buttons({
-      style: {
-        color: 'gold',
-        shape: 'pill',
-        label: 'pay',
-        height: 40
-      },
-      createOrder: function(data, actions) {
-        return actions.order.create({
-          purchase_units: [{
-            amount: {
-              value: '5.00'
-            }
-          }]
-        });
-      },
-      onApprove: function(data, actions) {
-        return actions.order.capture().then(function(details) {
-          alert('Thank you, ' + details.payer.name.given_name + '! Payment completed.');
-        });
-      }
-    }).render('#paypal-button-container');
-  </script>
 
   <script src="script.js"></script>
 </body>
