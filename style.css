@@ -67,7 +67,7 @@ main {
   position: fixed;
   right: 20px;
   bottom: 20px;
-  display: flex;
+  display: flex; 
   flex-direction: column;
   gap: 10px;
 }
