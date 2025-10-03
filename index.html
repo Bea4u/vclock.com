@@ -6,7 +6,8 @@
   <title>vClock Clone — Perfect</title>
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@600&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -22,6 +23,7 @@
         </div>
       </div>
     </div>
+
     <div class="right">
       <button id="theme-toggle" title="Toggle theme">🌙</button>
       <button id="settings-btn" title="Settings">⚙️</button>
@@ -30,40 +32,43 @@
 
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="brand"><div class="logo">vClock</div></div>
+    <div class="brand">
+      <div class="logo">vClock</div>
+    </div>
+
     <nav class="nav">
       <button class="nav-item active" data-view="alarm">⏰ Alarm Clock</button>
       <button class="nav-item" data-view="timer">⏳ Timer</button>
       <button class="nav-item" data-view="stopwatch">⏱ Stopwatch</button>
       <button class="nav-item" data-view="time">🕘 Time</button>
     </nav>
-    <hr/>
+
+    <hr />
     <div class="sidebar-foot">© vClock Clone</div>
   </aside>
 
-  <!-- Main area -->
+  <!-- Main content -->
   <main id="main">
-    <!-- left / center column -->
     <div id="main-column">
+      <!-- Clock -->
       <div id="clock-container">
-        <div id="clock" class="flip-clock" aria-live="polite" role="timer"></div>
+        <div id="clock-flat" aria-live="polite" role="timer"></div>
         <div id="date-line" class="subline"></div>
       </div>
 
       <!-- Middle panels -->
       <section id="middle-panels">
 
-        <!-- alarm presets -->
         <div class="panel alarm-presets" id="alarm-presets-panel">
           <h4>Set the alarm for the specified time</h4>
           <div class="alarm-grid" id="alarm-preset-grid"></div>
         </div>
 
-        <!-- Donate card (main column, below clock/presets) -->
         <div class="panel donate-main" id="donate-main">
           <div class="donate-title">Support Us</div>
           <div class="donate-msg">This free tool runs on love. If you find it useful, buy me a coffee ☕</div>
           <div class="donate-actions">
+            <!-- PayPal.me prefilled amounts -->
             <button class="donate-btn" data-link="https://www.paypal.me/JoyNance576/2">☕ Coffee — $2</button>
             <button class="donate-btn" data-link="https://www.paypal.me/JoyNance576/5">🍩 Snack — $5</button>
             <button class="donate-btn" data-link="https://www.paypal.me/JoyNance576/10">❤️ Support — $10</button>
@@ -71,7 +76,6 @@
           </div>
         </div>
 
-        <!-- Recently used / how-to long -->
         <div class="panel recent-panel" id="recent-panel">
           <div class="recent-columns">
             <div>
@@ -93,9 +97,9 @@
       </section>
     </div>
 
-    <!-- right column: tools (alarm/timer/stopwatch/time) -->
+    <!-- Right side controls -->
     <aside id="right-panel">
-      <section id="views" class="views">
+      <section id="views">
 
         <!-- Alarm view -->
         <div class="view" id="view-alarm" data-view="alarm">
@@ -172,8 +176,6 @@
         <select id="format-select"><option value="24">24-hour</option><option value="12">12-hour</option></select>
       </label>
       <label><span>Show Seconds</span><input id="toggle-seconds" type="checkbox" /></label>
-      <label><span>Clock Color</span><input id="clock-color" type="color" value="#FF8C00" /></label>
-      <label><span>Background</span><input id="bg-color" type="color" value="#000000" /></label>
       <label><span>Font Scale</span><input id="font-scale" type="range" min="0.6" max="2.0" step="0.05" value="1.1" /></label>
       <div class="modal-actions">
         <button id="save-settings">Save</button>
