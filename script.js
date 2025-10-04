@@ -385,4 +385,37 @@ window.vc = window.vc || {};
 window.vc.worldCities = worldCities;
 window.renderWorldGrid = renderWorldGrid;
 window.renderWorldClock = renderWorldClock;
+// ========== WORLD CLOCK (time.html) ==========
+const worldList = document.getElementById("world-times");
+let worldCities = [
+  { name: "New York", zone: "America/New_York" },
+  { name: "London", zone: "Europe/London" },
+  { name: "Lagos", zone: "Africa/Lagos" },
+  { name: "Tokyo", zone: "Asia/Tokyo" },
+  { name: "Sydney", zone: "Australia/Sydney" }
+];
+
+function renderWorldClock() {
+  if (!worldList) return;
+  worldList.innerHTML = worldCities.map(c => {
+    const time = new Date().toLocaleTimeString("en-US", { timeZone: c.zone, hour12: false });
+    return `<li><strong>${c.name}</strong> — ${time}</li>`;
+  }).join("");
+}
+
+setInterval(renderWorldClock, 1000);
+renderWorldClock();
+
+// Add new city
+const addBtn = document.getElementById("add-city");
+if (addBtn) {
+  addBtn.addEventListener("click", () => {
+    const city = prompt("Enter City Name:");
+    const zone = prompt("Enter Timezone (e.g., Europe/Paris):");
+    if (city && zone) {
+      worldCities.push({ name: city, zone: zone });
+      renderWorldClock();
+    }
+  });
+}
 
