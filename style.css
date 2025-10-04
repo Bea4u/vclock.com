@@ -56,4 +56,37 @@ body{
 .social-icons{display:flex;gap:10px;margin-top:10px}
 .social-icons img{width:32px;height:32px;cursor:pointer}
 .page-footer{margin-top:20px;background:#0a0a0a;padding:12px 24px;border-top:1px solid rgba(255,255,255,0.03)}
+/* ===== World Clock ===== */
+.world-list {
+  list-style: none;
+  padding: 0;
+}
+.world-list li {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+.add-btn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: #0077ff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.add-btn:hover {
+  background: #0055cc;
+}
+
+/* ===== Social Share ===== */
+.social-icons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.social-icons img {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
 
