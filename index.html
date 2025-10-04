@@ -7,107 +7,17 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Topbar -->
-  <header class="topbar">
-    <div class="left">
-      <a href="holidays.html">Holidays</a>
-      <div class="dropdown">
-        <button class="dropbtn">Tools ▼</button>
-        <div class="dropdown-content">
-          <a href="time.html">World Clock</a>
-          <a href="#">Pomodoro</a>
-        </div>
-      </div>
-    </div>
-    <div class="right">
-      <button id="theme-toggle">🌙</button>
-      <button id="settings-btn">⚙️</button>
-    </div>
-  </header>
-
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="brand">vClock</div>
-    <nav class="nav">
-      <a href="index.html" class="nav-item active">Alarm Clock</a>
-      <a href="timer.html" class="nav-item">Timer</a>
-      <a href="stopwatch.html" class="nav-item">Stopwatch</a>
-      <a href="time.html" class="nav-item">Time</a>
-    </nav>
-    <div class="sidebar-foot">© vClock Clone</div>
-  </aside>
-
-  <!-- Main -->
-  <main id="main">
-    <div id="main-column">
-      <div id="clock-container">
-        <div id="clock-flat">00:00:00</div>
-        <div class="subline">Friday, Oct 3</div>
-      </div>
-
-      <section class="panel">
-        <h3>Quick Alarms</h3>
-        <div class="alarm-grid">
-          <button data-time="04:00">04:00</button>
-          <button data-time="04:30">04:30</button>
-          <button data-time="05:00">05:00</button>
-          <button data-time="05:30">05:30</button>
-        </div>
-      </section>
-
-      <section class="panel">
-        <h3>Recent Alarms</h3>
-        <div class="recent-columns">
-          <ul class="recent-list" id="recent-alarms"></ul>
-        </div>
-      </section>
-
-      <section class="panel">
-        <h3>How to use</h3>
-        <p class="howto-short">
-          Click a preset time above to set an alarm instantly, or use the right panel to create your own alarm. 
-          The alarm will ring in your browser when the time comes.
-        </p>
-      </section>
-    </div>
-
-    <!-- Right Panel -->
-    <aside id="right-panel">
-      <section class="panel">
-        <h3>Set Alarm</h3>
-        <div class="alarms-list" id="alarms-list"></div>
-        <div class="alarm-controls">
-          <input type="time" id="alarm-time">
-          <button id="set-alarm">Set Alarm</button>
-        </div>
-      </section>
-
-      <section class="panel">
-        <h3>Support Us</h3>
-        <div class="donate-msg">If you like this tool, consider supporting us ❤️</div>
-        <div class="donate-actions">
-          <button class="donate-btn">$3 Coffee</button>
-          <button class="donate-btn">$5 Snack</button>
-          <button class="donate-btn">$10 Meal</button>
-          <a href="https://www.paypal.me/JoyNance576" target="_blank" class="donate-link-small">Custom</a>
-        </div>
-      </section>
-    </aside>
-  </main>
-
-  <!-- Floating Controls -->
-  <div class="floating-controls">
-    <button id="share">🔗</button>
-    <button id="zoom-out">➖</button>
-    <button id="zoom-in">➕</button>
-    <button id="fullscreen">⛶</button>
+  <header class="topbar"><div class="left"><a href="#">Holidays</a></div><div class="right"><button id="theme-toggle">🌙</button><button id="settings-btn">⚙️</button></div></header>
+  <aside class="sidebar"><div class="brand"><div class="logo">vClock</div></div><nav class="nav"><a href="index.html" class="nav-item active">Alarm Clock</a><a href="timer.html" class="nav-item">Timer</a><a href="stopwatch.html" class="nav-item">Stopwatch</a><a href="time.html" class="nav-item">Time</a></nav><div class="sidebar-foot">© vClock Clone</div></aside>
+  <main id="main"><div id="main-column">
+    <div id="clock-container"><div id="clock-flat">00:00:00</div><div class="subline" id="date-line">Loading...</div></div>
+    <section class="panel"><h3>Quick Alarms</h3><div class="alarm-grid" id="preset-grid"></div></section>
+    <section class="panel"><h3>Recent Alarms</h3><div class="recent-columns"><ul class="recent-list" id="recent-alarms"></ul></div></section>
+    <section class="panel"><h3>How to use</h3><p class="howto-short">Click a preset time above to set an alarm instantly, or use the right panel to create your own alarm. The alarm will ring in your browser when the time comes.</p></section>
   </div>
-
-  <!-- Footer -->
-  <footer class="page-footer">
-    <a href="#">Contacts</a> • <a href="#">Terms</a> • <a href="#">Privacy</a>
-  </footer>
-
+  <aside id="right-panel"><section class="panel"><h3>Set Alarm</h3><div class="alarms-list" id="alarms-list"></div><div class="alarm-controls"><input type="time" id="alarm-time"><input type="text" id="alarm-label" placeholder="Label (optional)"><div style="display:flex;gap:8px;margin-top:8px;"><button id="set-alarm">Set Alarm</button><button id="test-alarm">Test</button></div></div></section><section class="panel"><h3>Support Us</h3><div class="donate-msg">If you like this tool, consider supporting us ❤️</div><div class="donate-actions"><button class="donate-btn" data-link="https://www.paypal.me/JoyNance576/2">☕ $2</button><button class="donate-btn" data-link="https://www.paypal.me/JoyNance576/5">🍩 $5</button><button class="donate-btn" data-link="https://www.paypal.me/JoyNance576/10">❤️ $10</button><a href="https://www.paypal.me/JoyNance576" target="_blank" class="donate-link-small">Custom</a></div></section></aside></main>
+  <div class="floating-controls"><button id="share">🔗</button><button id="zoom-out">➖</button><button id="zoom-in">➕</button><button id="fullscreen">⛶</button></div>
+  <footer class="page-footer"><a href="#">Contacts</a> • <a href="#">Terms</a> • <a href="#">Privacy</a></footer>
   <script src="script.js"></script>
 </body>
 </html>
