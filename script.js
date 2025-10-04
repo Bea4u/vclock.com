@@ -194,3 +194,195 @@ const fsBtn = document.getElementById('fullscreen');
 if (fsBtn) fsBtn.addEventListener('click', ()=>{ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); });
 const shareBtn = document.getElementById('share');
 if (shareBtn) shareBtn.addEventListener('click', async ()=>{ try{ if (navigator.share) await navigator.share({title:'vClock clone', url:location.href}); else { await navigator.clipboard.writeText(location.href); alert('Link copied'); } } catch(e){ alert('Share failed'); } });
+/* script.js - vClock clone: clocks, alarms, world time grid, add/move/delete */
+"use strict";
+
+/* ---------- small utility ---------- */
+function el(tag, html){ const d=document.createElement(tag); if(html!==undefined) d.innerHTML=html; return d; }
+function q(sel,root=document){ return root.querySelector(sel); }
+function qa(sel,root=document){ return Array.from(root.querySelectorAll(sel)); }
+
+/* ---------- persistent storage ---------- */
+const STORAGE_KEYS = {
+  CITIES: 'vc_world_cities_v1'
+};
+function loadCities(){
+  const saved = localStorage.getItem(STORAGE_KEYS.CITIES);
+  if (saved) {
+    try { return JSON.parse(saved); } catch(e){}
+  }
+  // default: replicate popular order from vClock
+  return [
+    {name:'Local', tz: Intl.DateTimeFormat().resolvedOptions().timeZone, href:'#'},
+    {name:'UTC', tz:'UTC', href:'#'},
+    {name:'New York, USA', tz:'America/New_York', href:'new-york-united-states/'},
+    {name:'London, United Kingdom', tz:'Europe/London', href:'london-united-kingdom/'},
+    {name:'Tokyo, Japan', tz:'Asia/Tokyo', href:'tokyo-japan/'},
+    {name:'Sydney, Australia', tz:'Australia/Sydney', href:'sydney-australia/'},
+    {name:'Toronto, Canada', tz:'America/Toronto', href:'toronto-canada/'},
+    {name:'Beijing, China', tz:'Asia/Shanghai', href:'beijing-china/'},
+    {name:'Singapore, Singapore', tz:'Asia/Singapore', href:'singapore-singapore/'},
+    {name:'Berlin, Germany', tz:'Europe/Berlin', href:'berlin-germany/'},
+    {name:'Lagos, Nigeria', tz:'Africa/Lagos', href:'lagos-nigeria/'},
+    {name:'Hong Kong, China', tz:'Asia/Hong_Kong', href:'hong-kong-china/'}
+  ];
+}
+function saveCities(list){
+  localStorage.setItem(STORAGE_KEYS.CITIES, JSON.stringify(list));
+}
+
+/* ---------- render / grid management ---------- */
+let worldCities = loadCities();
+
+function buildClockCol(city, idx){
+  const col = el('div');
+  col.className = 'clock-col panel';
+  col.dataset.idx = idx;
+  col.innerHTML = `
+    <div class="panel-heading colored" style="padding:10px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-weight:700"><a class="colored ext-link" href="${city.href}" style="color:inherit;text-decoration:none;">${city.name}</a></div>
+      <div class="tools" style="display:flex;gap:8px;align-items:center">
+        <a class="colored ext-link open-link" href="${city.href}" title="Open clock">⛶</a>
+        <span class="pm-menu">
+          <button class="pm-toggle" aria-label="Options">⋯</button>
+          <div class="dropdown-menu">
+            <a class="pm-edit" href="javascript:;">Edit</a>
+            <div class="divider" style="height:6px"></div>
+            <a class="pm-move-top" href="javascript:;">Move to Top</a>
+            <a class="pm-move-up" href="javascript:;">Move Up</a>
+            <a class="pm-move-down" href="javascript:;">Move Down</a>
+            <div class="divider" style="height:6px"></div>
+            <a class="pm-delete" href="javascript:;">Delete</a>
+          </div>
+        </span>
+      </div>
+    </div>
+    <div class="panel-body clock-body" data-tz="${city.tz}" style="padding:12px;">
+      <div class="colored digit text-nowrap text-center font-digit" style="font-size:30px">--:--:--</div>
+      <div class="colored text-center" style="font-size:14px;opacity:0.85;margin-top:6px">–</div>
+    </div>
+  `;
+  // add event handlers for menu
+  const menu = col.querySelector('.pm-menu');
+  const toggle = col.querySelector('.pm-toggle');
+  toggle.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    menu.classList.toggle('open');
+  });
+  // actions
+  col.querySelector('.pm-edit').addEventListener('click', ()=> { openEditDialog(idx); menu.classList.remove('open'); });
+  col.querySelector('.pm-move-top').addEventListener('click', ()=> { moveCity(idx,0); menu.classList.remove('open'); });
+  col.querySelector('.pm-move-up').addEventListener('click', ()=> { moveCity(idx, Math.max(0, idx-1)); menu.classList.remove('open'); });
+  col.querySelector('.pm-move-down').addEventListener('click', ()=> { moveCity(idx, Math.min(worldCities.length-1, idx+1)); menu.classList.remove('open'); });
+  col.querySelector('.pm-delete').addEventListener('click', ()=> { deleteCity(idx); menu.classList.remove('open'); });
+  // close menus when clicking outside
+  document.addEventListener('click', ()=> { menu.classList.remove('open'); });
+  return col;
+}
+
+function renderWorldGrid(){
+  const grid = document.getElementById('grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  worldCities.forEach((c,i) => grid.appendChild(buildClockCol(c,i)));
+  saveCities(worldCities);
+}
+renderWorldGrid();
+
+/* ---------- time update loop ---------- */
+function updateAllClocks(){
+  const bodies = document.querySelectorAll('.clock-body');
+  bodies.forEach(b=>{
+    const tz = b.dataset.tz || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const now = new Date();
+    try {
+      const timeStr = now.toLocaleTimeString('en-US', { timeZone: tz, hour12:true, hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      b.querySelector('.font-digit').textContent = timeStr;
+      const dateStr = now.toLocaleDateString('en-US', { timeZone: tz, weekday:'short', month:'short', day:'numeric' });
+      b.querySelector('.text-center').textContent = dateStr;
+    } catch(e){
+      b.querySelector('.font-digit').textContent = 'n/a';
+      b.querySelector('.text-center').textContent = tz;
+    }
+  });
+  // also update big clock top-right if present
+  const big = document.getElementById('nowbig');
+  if (big) big.textContent = new Date().toLocaleTimeString();
+}
+setInterval(updateAllClocks, 1000);
+updateAllClocks();
+
+/* ---------- city operations ---------- */
+function moveCity(oldIdx, newIdx){
+  if (oldIdx === newIdx) return;
+  const [item] = worldCities.splice(oldIdx,1);
+  worldCities.splice(newIdx,0,item);
+  renderWorldGrid();
+}
+function deleteCity(idx){
+  if (!confirm('Delete this city?')) return;
+  worldCities.splice(idx,1);
+  renderWorldGrid();
+}
+function openEditDialog(idx){
+  const c = worldCities[idx];
+  const newName = prompt('Edit city display name:', c.name);
+  if (newName === null) return; // cancelled
+  const newTz = prompt('Edit IANA timezone (e.g. Europe/Paris):', c.tz);
+  if (newTz === null) return;
+  c.name = newName.trim() || c.name;
+  c.tz = newTz.trim() || c.tz;
+  worldCities[idx] = c;
+  saveCities(worldCities);
+  renderWorldGrid();
+}
+
+/* ---------- add city UI ---------- */
+const addBtn = document.getElementById('add-city-btn');
+const quickInput = document.getElementById('quick-search');
+if (addBtn && quickInput){
+  addBtn.addEventListener('click', ()=>{
+    const v = quickInput.value.trim();
+    if (!v) { alert('Enter a city display name or timezone'); quickInput.focus(); return; }
+    // If value looks like a timezone (contains '/'), treat as tz
+    if (v.includes('/')) {
+      const guessedName = v.split('/').pop().replace(/_/g,' ');
+      worldCities.push({ name: guessedName + ' ('+v+')', tz: v, href:'#' });
+    } else {
+      // try to guess timezone by searching known list (simple heuristic)
+      const guess = guessTZFromName(v);
+      if (guess) {
+        worldCities.push({ name: v, tz: guess, href:'#' });
+      } else {
+        const tz = prompt('Timezone not recognized. Enter IANA timezone for "'+v+'", e.g. Europe/Paris:');
+        if (!tz) return;
+        worldCities.push({ name: v, tz: tz.trim(), href:'#' });
+      }
+    }
+    saveCities(worldCities);
+    renderWorldGrid();
+    quickInput.value = '';
+  });
+}
+
+function guessTZFromName(name){
+  // crude mapping for common cities - extendable
+  const map = {
+    'new york':'America/New_York','london':'Europe/London','paris':'Europe/Paris',
+    'tokyo':'Asia/Tokyo','sydney':'Australia/Sydney','lagos':'Africa/Lagos',
+    'beijing':'Asia/Shanghai','singapore':'Asia/Singapore','toronto':'America/Toronto',
+    'berlin':'Europe/Berlin','hong kong':'Asia/Hong_Kong','los angeles':'America/Los_Angeles'
+  };
+  const key = name.toLowerCase();
+  return map[key] || null;
+}
+
+/* ---------- optional: expose render function for time.html simple bootstrap ---------- */
+function renderWorldClock(){ renderWorldGrid(); updateAllClocks(); }
+
+/* ---------- allow other pages to import worldCities if needed ---------- */
+window.vc = window.vc || {};
+window.vc.worldCities = worldCities;
+window.renderWorldGrid = renderWorldGrid;
+window.renderWorldClock = renderWorldClock;
+
