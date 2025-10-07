@@ -1,0 +1,140 @@
+/* style.css — Original vClock Clone */
+
+/*!
+ * vClock CSS — alarm, timer, and time styling
+ * Copyright (c) Comfort Software Group
+ * 
+ * This file defines the structure and look of all vClock UI panels.
+ */
+
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+  background-color: #000;
+  color: #fff;
+}
+
+.navbar-brand, .am-logo {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.am-top-header {
+  background-color: #1565c0;
+  border: none;
+  color: white;
+}
+
+.btn {
+  border-radius: 4px;
+  text-transform: none;
+}
+
+.btn-primary {
+  background-color: #1976d2;
+  border-color: #1976d2;
+}
+
+.btn-primary:hover {
+  background-color: #0d47a1;
+  border-color: #0d47a1;
+}
+
+.btn-default {
+  background-color: #e0e0e0;
+  color: #000;
+}
+
+.panel {
+  background-color: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.4);
+}
+
+.panel-default .panel-heading {
+  background-color: #222;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 15px;
+}
+
+.panel-default .panel-body {
+  padding: 15px;
+}
+
+#lbl-time {
+  font-size: 90px;
+  font-family: "Digital-7 Mono", monospace;
+  letter-spacing: 2px;
+}
+
+.main-title {
+  color: #42a5f5;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.digit {
+  color: #fff;
+}
+
+.digit-text {
+  color: #ccc;
+  font-size: 20px;
+}
+
+.btn-space {
+  margin: 5px;
+}
+
+#btn-full-screen, #btn-full-screen-exit {
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+#pnl-set-alarm {
+  margin-top: 20px;
+}
+
+#pnl-alarm-time {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+#lbl-alarm-timer {
+  font-size: 22px;
+  color: #eee;
+}
+
+.modal {
+  color: #000;
+}
+
+.am-footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 13px;
+  color: #888;
+}
+
+.am-footer a {
+  color: #90caf9;
+  text-decoration: none;
+}
+
+.am-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  #lbl-time {
+    font-size: 64px;
+  }
+}
